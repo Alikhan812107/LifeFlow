@@ -15,3 +15,5 @@ func main() {
 	app.RegisterRoutes(handler)
 	app.Start()
 }
+
+// LifeFlow v1.1 - Initial working backend with Task CRUD
