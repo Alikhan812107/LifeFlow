@@ -4,6 +4,7 @@ import (
 	"Assignment3/internal/models"
 	"Assignment3/internal/service"
 	"encoding/json"
+	"html/template"
 	"net/http"
 	"strconv"
 )
@@ -56,4 +57,28 @@ func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *TaskHandler) ViewHTML(w http.ResponseWriter, r *http.Request) {
+	tasks := h.service.GetAll()
+
+	tmpl := template.Must(template.ParseFiles("templates/tasks.html"))
+	tmpl.Execute(w, tasks)
+}
+
+func (h *TaskHandler) CreateFromHTML(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	title := r.FormValue("title")
+
+	h.service.Create(models.Task{
+		Title:  title,
+		Done:   false,
+		UserID: 1,
+	})
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

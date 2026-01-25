@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LifeFlow</title>
+</head>
+<body>
+
+<h1>LifeFlow – Task Management</h1>
+
+<h2>Add new task</h2>
+<form method="POST" action="/tasks/html">
+    <input type="text" name="title" placeholder="Task title" required>
+    <button type="submit">Add Task</button>
+</form>
+
+<h2>Task list</h2>
+<ul>
+    {{range .}}
+    <li>
+        {{.Title}}
+        {{if .Done}}✔{{end}}
+    </li>
+    {{else}}
+    <li>No tasks yet</li>
+    {{end}}
+</ul>
+
+</body>
+</html>
