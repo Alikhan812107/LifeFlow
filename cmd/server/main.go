@@ -12,30 +12,27 @@ import (
 )
 
 func main() {
-
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("No .env file found")
+		log.Println("no .env file")
 	}
 
 	mongoURI := os.Getenv("MONGO_URI")
 	if mongoURI == "" {
-		log.Fatal("MONGO_URI is not set")
+		log.Fatal("need MONGO_URI")
 	}
 
 	client, err := repository.NewMongoClient(mongoURI)
 	if err != nil {
-		panic(err)
+		log.Fatal("cant connect to mongo:", err)
 	}
 
 	collection := client.Database("lifeflow").Collection("tasks")
 	repo := repository.NewMongoTaskRepository(collection)
-
 	service := service.NewTaskService(repo)
 	handler := handlers.NewTaskHandler(service)
 
 	app.RegisterRoutes(handler)
+	log.Println("server starting on :8080")
 	app.Start()
 }
-
-// LifeFlow v1.1 - Initial working backend with Task CRUD
