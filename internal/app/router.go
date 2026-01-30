@@ -29,5 +29,7 @@ func RegisterRoutes(handler *handlers.TaskHandler) {
 
 	http.HandleFunc("/", handler.ViewHTML)
 	http.HandleFunc("/tasks/html", handler.CreateFromHTML)
-
+	http.HandleFunc("/tasks/toggle", handler.ToggleTask)
+	http.HandleFunc("/tasks/delete", handler.DeleteFromHTML)
+	http.HandleFunc("/tasks/update", handler.UpdateFromHTML)
 }

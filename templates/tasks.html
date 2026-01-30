@@ -1,30 +1,397 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>LifeFlow</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeFlow Notes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin: 0 0 10px 0;
+            font-weight: normal;
+        }
+        
+        .add-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-control:focus {
+            border-color: #4facfe;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+        
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s;
+            margin-right: 8px;
+            margin-bottom: 5px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .notes-section {
+            padding: 30px;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .note-item {
+            background: white;
+            border: 2px solid #f1f3f4;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .note-item:hover {
+            border-color: #4facfe;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .note-item.completed {
+            background: #f8f9fa;
+            border-color: #28a745;
+        }
+        
+        .note-item.editing {
+            border-color: #ffc107;
+            background: #fff3cd;
+        }
+        
+        .note-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .note-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        
+        .note-title {
+            flex: 1;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .note-item.completed .note-title {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+        
+        .note-body {
+            margin: 15px 0;
+            color: #6c757d;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .note-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .edit-form {
+            display: none;
+            margin-top: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #ffc107;
+        }
+        
+        .edit-form.active {
+            display: block;
+        }
+        
+        .edit-form .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .edit-form .form-control {
+            font-size: 14px;
+            padding: 10px 12px;
+        }
+        
+        .edit-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .stats {
+                flex-direction: column;
+            }
+            
+            .note-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-right: 0;
+            }
+            
+            .edit-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<h1>LifeFlow – Task Management</h1>
-
-<h2>Add new task</h2>
-<form method="POST" action="/tasks/html">
-    <input type="text" name="title" placeholder="Task title" required>
-    <button type="submit">Add Task</button>
-</form>
-
-<h2>Task list</h2>
-<ul>
-    {{range .}}
-    <li>
-        {{.Title}}
-        {{if .Done}}✔{{end}}
-    </li>
-    {{else}}
-    <li>No tasks yet</li>
-    {{end}}
-</ul>
-
+    <div class="container">
+        <div class="header">
+            <h1>LifeFlow Notes</h1>
+            <p>Keep track of your thoughts and tasks</p>
+        </div>
+        
+        <div class="add-section">
+            <h2>Add New Note</h2>
+            <form method="POST" action="/tasks/html">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" name="title" id="title" class="form-control" placeholder="Enter note title" required>
+                </div>
+                <div class="form-group">
+                    <label for="body">Content</label>
+                    <textarea name="body" id="body" class="form-control" placeholder="Write your note here..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Note</button>
+            </form>
+        </div>
+        
+        <div class="notes-section">
+            {{if .}}
+                {{$total := len .}}
+                {{$completed := 0}}
+                {{range .}}
+                    {{if .Done}}
+                        {{$completed = add $completed 1}}
+                    {{end}}
+                {{end}}
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number">{{$total}}</div>
+                        <div class="stat-label">Total Notes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{$completed}}</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{sub $total $completed}}</div>
+                        <div class="stat-label">Active</div>
+                    </div>
+                </div>
+                
+                <h2>Your Notes</h2>
+                
+                {{range .}}
+                <div class="note-item {{if .Done}}completed{{end}}" id="note-{{.ID.Hex}}">
+                    <div class="note-header">
+                        <input type="checkbox" class="note-checkbox" {{if .Done}}checked{{end}} 
+                               onclick="window.location.href='/tasks/toggle?id={{.ID.Hex}}'">
+                        <div class="note-title">{{.Title}}</div>
+                    </div>
+                    {{if .Body}}
+                    <div class="note-body">{{.Body}}</div>
+                    {{end}}
+                    
+                    <div class="note-actions">
+                        <a href="/tasks/toggle?id={{.ID.Hex}}" class="btn btn-success">
+                            {{if .Done}}Mark Active{{else}}Mark Done{{end}}
+                        </a>
+                        <button onclick="showEditForm('{{.ID.Hex}}')" class="btn btn-warning">Update</button>
+                        <a href="/tasks/delete?id={{.ID.Hex}}" class="btn btn-danger" 
+                           onclick="return confirm('Delete this note?')">Delete</a>
+                    </div>
+                    
+                    <div class="edit-form" id="edit-{{.ID.Hex}}">
+                        <form method="POST" action="/tasks/update">
+                            <input type="hidden" name="id" value="{{.ID.Hex}}">
+                            <div class="form-group">
+                                <label>Title</label>
+                                <input type="text" name="title" class="form-control" value="{{.Title}}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Content</label>
+                                <textarea name="body" class="form-control">{{.Body}}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" name="done" {{if .Done}}checked{{end}}> 
+                                    Mark as completed
+                                </label>
+                            </div>
+                            <div class="edit-actions">
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <button type="button" onclick="hideEditForm('{{.ID.Hex}}')" class="btn btn-secondary">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {{end}}
+            {{else}}
+                <div class="empty-state">
+                    <h3>No notes yet</h3>
+                    <p>Create your first note above!</p>
+                </div>
+            {{end}}
+        </div>
+    </div>
+    
+    <script>
+        function showEditForm(id) {
+            document.getElementById('edit-' + id).classList.add('active');
+            document.getElementById('note-' + id).classList.add('editing');
+        }
+        
+        function hideEditForm(id) {
+            document.getElementById('edit-' + id).classList.remove('active');
+            document.getElementById('note-' + id).classList.remove('editing');
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form[action="/tasks/html"]');
+            const input = document.querySelector('#title');
+            
+            form.addEventListener('submit', function(e) {
+                if (input.value.trim() === '') {
+                    e.preventDefault();
+                    input.focus();
+                    input.style.borderColor = '#dc3545';
+                    setTimeout(() => {
+                        input.style.borderColor = '#e9ecef';
+                    }, 2000);
+                }
+            });
+        });
+    </script>
 </body>
 </html>

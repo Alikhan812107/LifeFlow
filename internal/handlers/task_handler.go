@@ -6,7 +6,8 @@ import (
 	"encoding/json"
 	"html/template"
 	"net/http"
-	"strconv"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type TaskHandler struct {
@@ -19,66 +20,191 @@ func NewTaskHandler(service *service.TaskService) *TaskHandler {
 
 func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var task models.Task
-	json.NewDecoder(r.Body).Decode(&task)
-	result := h.service.Create(task)
+	err := json.NewDecoder(r.Body).Decode(&task)
+	if err != nil {
+		http.Error(w, "bad json", http.StatusBadRequest)
+		return
+	}
+	result, err := h.service.Create(task)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(result)
 }
 
 func (h *TaskHandler) GetAll(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(h.service.GetAll())
+	tasks, err := h.service.GetAll()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(tasks)
 }
 
 func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
-	task, ok := h.service.GetByID(id)
-	if !ok {
-		w.WriteHeader(http.StatusNotFound)
+	idStr := r.URL.Query().Get("id")
+	id, err := primitive.ObjectIDFromHex(idStr)
+	if err != nil {
+		http.Error(w, "bad id", http.StatusBadRequest)
 		return
 	}
+	task, err := h.service.GetByID(id)
+	if err != nil {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(task)
 }
 
 func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
-	var task models.Task
-	json.NewDecoder(r.Body).Decode(&task)
-	result, ok := h.service.Update(id, task)
-	if !ok {
-		w.WriteHeader(http.StatusNotFound)
+	idStr := r.URL.Query().Get("id")
+	id, err := primitive.ObjectIDFromHex(idStr)
+	if err != nil {
+		http.Error(w, "bad id", http.StatusBadRequest)
 		return
 	}
+	var task models.Task
+	err = json.NewDecoder(r.Body).Decode(&task)
+	if err != nil {
+		http.Error(w, "bad json", http.StatusBadRequest)
+		return
+	}
+	result, err := h.service.Update(id, task)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(result)
 }
 
 func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
-	if !h.service.Delete(id) {
-		w.WriteHeader(http.StatusNotFound)
+	idStr := r.URL.Query().Get("id")
+	id, err := primitive.ObjectIDFromHex(idStr)
+	if err != nil {
+		http.Error(w, "bad id", http.StatusBadRequest)
+		return
+	}
+	err = h.service.Delete(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *TaskHandler) ViewHTML(w http.ResponseWriter, r *http.Request) {
-	tasks := h.service.GetAll()
-
-	tmpl := template.Must(template.ParseFiles("templates/tasks.html"))
+	tasks, err := h.service.GetAll()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	
+	funcMap := template.FuncMap{
+		"add": func(a, b int) int { return a + b },
+		"sub": func(a, b int) int { return a - b },
+	}
+	
+	tmpl := template.Must(template.New("tasks.html").Funcs(funcMap).ParseFiles("templates/tasks.html"))
 	tmpl.Execute(w, tasks)
 }
 
 func (h *TaskHandler) CreateFromHTML(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Error(w, "wrong method", http.StatusMethodNotAllowed)
 		return
 	}
-
 	title := r.FormValue("title")
-
-	h.service.Create(models.Task{
+	body := r.FormValue("body")
+	if title == "" {
+		http.Error(w, "need title", http.StatusBadRequest)
+		return
+	}
+	task := models.Task{
 		Title:  title,
+		Body:   body,
 		Done:   false,
-		UserID: 1,
-	})
+		UserID: "user1",
+	}
+	_, err := h.service.Create(task)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
 
+func (h *TaskHandler) UpdateFromHTML(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "wrong method", http.StatusMethodNotAllowed)
+		return
+	}
+	idStr := r.FormValue("id")
+	id, err := primitive.ObjectIDFromHex(idStr)
+	if err != nil {
+		http.Error(w, "bad id", http.StatusBadRequest)
+		return
+	}
+	title := r.FormValue("title")
+	body := r.FormValue("body")
+	done := r.FormValue("done") == "on"
+	
+	if title == "" {
+		http.Error(w, "need title", http.StatusBadRequest)
+		return
+	}
+	
+	task := models.Task{
+		Title: title,
+		Body:  body,
+		Done:  done,
+		UserID: "user1",
+	}
+	
+	_, err = h.service.Update(id, task)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (h *TaskHandler) ToggleTask(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+	id, err := primitive.ObjectIDFromHex(idStr)
+	if err != nil {
+		http.Error(w, "bad id", http.StatusBadRequest)
+		return
+	}
+	task, err := h.service.GetByID(id)
+	if err != nil {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
+	task.Done = !task.Done
+	_, err = h.service.Update(id, task)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (h *TaskHandler) DeleteFromHTML(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+	id, err := primitive.ObjectIDFromHex(idStr)
+	if err != nil {
+		http.Error(w, "bad id", http.StatusBadRequest)
+		return
+	}
+	err = h.service.Delete(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
