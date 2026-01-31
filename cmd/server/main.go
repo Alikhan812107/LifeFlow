@@ -35,4 +35,5 @@ func main() {
 	app.RegisterRoutes(handler)
 	log.Println("server starting on :8080")
 	app.Start()
+
 }
