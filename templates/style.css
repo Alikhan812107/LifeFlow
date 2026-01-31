@@ -1,0 +1,133 @@
+:root {
+    --bg: #0f1115;
+    --panel: #161a22;
+    --text: #e6e6eb;
+    --muted: #9aa0ac;
+    --accent: #64f3a5;
+    --border: #232838;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 16px;
+}
+
+.app {
+    width: 100%;
+    max-width: 520px;
+    background: var(--panel);
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+header {
+    margin-bottom: 32px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 32px;
+}
+
+.subtitle {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+h2 {
+    font-size: 18px;
+    margin-bottom: 12px;
+}
+
+.add-task form {
+    display: flex;
+    gap: 10px;
+}
+
+input[type="text"] {
+    flex: 1;
+    background: #0c0f16;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-size: 14px;
+}
+
+input::placeholder {
+    color: var(--muted);
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+button {
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.05s ease, opacity 0.15s ease;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+.tasks {
+    margin-top: 32px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    background: #0c0f16;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+li.done {
+    opacity: 0.6;
+    text-decoration: line-through;
+}
+
+.check {
+    color: var(--accent);
+    font-weight: bold;
+}
+
+li.empty {
+    color: var(--muted);
+    text-align: center;
+    background: transparent;
+    border: 1px dashed var(--border);
+}
