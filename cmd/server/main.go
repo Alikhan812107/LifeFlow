@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	//Load env
+
 	_ = godotenv.Load()
 
 	mongoURI := os.Getenv("MONGO_URI")
@@ -25,7 +25,6 @@ func main() {
 		log.Fatal("MONGO_URI not set")
 	}
 
-	//Mongo client
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		log.Fatal(err)
@@ -33,19 +32,15 @@ func main() {
 
 	db := client.Database("lifeflow")
 
-	//REPOSITORIES
 	taskRepo := repository.NewMongoTaskRepository(db.Collection("tasks"))
 	userRepo := repository.NewUserMongoRepository(db)
 
-	//SERVICES
 	taskService := service.NewTaskService(taskRepo)
 	authService := service.NewAuthService(userRepo, "super-secret-key")
 
-	//HANDLERS
 	taskHandler := handlers.NewTaskHandler(taskService)
 	authHandler := handlers.NewAuthHandler(authService)
 
-	//ROUTES
 	app.RegisterRoutes(taskHandler, authHandler)
 
 	log.Println("Server starting on :8080")

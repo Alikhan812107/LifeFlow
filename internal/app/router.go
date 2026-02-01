@@ -10,7 +10,7 @@ func RegisterRoutes(
 	taskHandler *handlers.TaskHandler,
 	authHandler *handlers.AuthHandler,
 ) {
-	// Task API
+
 	http.HandleFunc("/tasks", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			taskHandler.Create(w, r)
@@ -39,11 +39,9 @@ func RegisterRoutes(
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 	})
 
-	// Auth API
 	http.HandleFunc("/register", authHandler.Register)
 	http.HandleFunc("/login", authHandler.Login)
 
-	// HTML routes
 	http.HandleFunc("/", taskHandler.ViewHTML)
 	http.HandleFunc("/tasks/html", taskHandler.CreateFromHTML)
 	http.HandleFunc("/tasks/toggle", taskHandler.ToggleTask)
