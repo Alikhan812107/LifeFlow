@@ -1,35 +1,52 @@
 package app
 
 import (
-	"Assignment3/internal/handlers"
 	"net/http"
+
+	"Assignment3/internal/handlers"
 )
 
-func RegisterRoutes(handler *handlers.TaskHandler) {
+func RegisterRoutes(
+	taskHandler *handlers.TaskHandler,
+	authHandler *handlers.AuthHandler,
+) {
+	// Task API
 	http.HandleFunc("/tasks", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
-			handler.Create(w, r)
+			taskHandler.Create(w, r)
+			return
 		}
 		if r.Method == http.MethodGet {
-			handler.GetAll(w, r)
+			taskHandler.GetAll(w, r)
+			return
 		}
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 	})
 
 	http.HandleFunc("/tasks/item", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
-			handler.GetByID(w, r)
+			taskHandler.GetByID(w, r)
+			return
 		}
 		if r.Method == http.MethodPut {
-			handler.Update(w, r)
+			taskHandler.Update(w, r)
+			return
 		}
 		if r.Method == http.MethodDelete {
-			handler.Delete(w, r)
+			taskHandler.Delete(w, r)
+			return
 		}
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 	})
 
-	http.HandleFunc("/", handler.ViewHTML)
-	http.HandleFunc("/tasks/html", handler.CreateFromHTML)
-	http.HandleFunc("/tasks/toggle", handler.ToggleTask)
-	http.HandleFunc("/tasks/delete", handler.DeleteFromHTML)
-	http.HandleFunc("/tasks/update", handler.UpdateFromHTML)
+	// Auth API
+	http.HandleFunc("/register", authHandler.Register)
+	http.HandleFunc("/login", authHandler.Login)
+
+	// HTML routes
+	http.HandleFunc("/", taskHandler.ViewHTML)
+	http.HandleFunc("/tasks/html", taskHandler.CreateFromHTML)
+	http.HandleFunc("/tasks/toggle", taskHandler.ToggleTask)
+	http.HandleFunc("/tasks/delete", taskHandler.DeleteFromHTML)
+	http.HandleFunc("/tasks/update", taskHandler.UpdateFromHTML)
 }
