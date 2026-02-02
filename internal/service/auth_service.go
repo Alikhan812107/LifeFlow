@@ -41,7 +41,7 @@ func (s *AuthService) verifyPassword(hash, password string) bool {
 }
 
 func (s *AuthService) Register(ctx context.Context, email, password string) error {
-	// check if user already exists
+
 	_, err := s.userRepo.FindByEmail(ctx, email)
 	if err == nil {
 		return ErrEmailAlreadyExists
