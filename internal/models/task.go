@@ -7,5 +7,6 @@ type Task struct {
 	Title  string             `json:"title" bson:"title"`
 	Body   string             `json:"body" bson:"body"`
 	Done   bool               `json:"done" bson:"done"`
+	Folder string             `json:"folder" bson:"folder"`
 	UserID string             `json:"user_id" bson:"user_id"`
 }

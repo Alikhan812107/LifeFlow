@@ -104,13 +104,30 @@ func (h *TaskHandler) ViewHTML(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
+	folders := make(map[string][]models.Task)
+	for _, task := range tasks {
+		folder := task.Folder
+		if folder == "" {
+			folder = "General"
+		}
+		folders[folder] = append(folders[folder], task)
+	}
+	
 	funcMap := template.FuncMap{
 		"add": func(a, b int) int { return a + b },
 		"sub": func(a, b int) int { return a - b },
 	}
 	
+	data := struct {
+		Tasks   []models.Task
+		Folders map[string][]models.Task
+	}{
+		Tasks:   tasks,
+		Folders: folders,
+	}
+	
 	tmpl := template.Must(template.New("tasks.html").Funcs(funcMap).ParseFiles("templates/tasks.html"))
-	tmpl.Execute(w, tasks)
+	tmpl.Execute(w, data)
 }
 
 func (h *TaskHandler) CreateFromHTML(w http.ResponseWriter, r *http.Request) {
@@ -120,13 +137,18 @@ func (h *TaskHandler) CreateFromHTML(w http.ResponseWriter, r *http.Request) {
 	}
 	title := r.FormValue("title")
 	body := r.FormValue("body")
+	folder := r.FormValue("folder")
 	if title == "" {
 		http.Error(w, "need title", http.StatusBadRequest)
 		return
 	}
+	if folder == "" {
+		folder = "General"
+	}
 	task := models.Task{
 		Title:  title,
 		Body:   body,
+		Folder: folder,
 		Done:   false,
 		UserID: "user1",
 	}
@@ -151,17 +173,22 @@ func (h *TaskHandler) UpdateFromHTML(w http.ResponseWriter, r *http.Request) {
 	}
 	title := r.FormValue("title")
 	body := r.FormValue("body")
+	folder := r.FormValue("folder")
 	done := r.FormValue("done") == "on"
 	
 	if title == "" {
 		http.Error(w, "need title", http.StatusBadRequest)
 		return
 	}
+	if folder == "" {
+		folder = "General"
+	}
 	
 	task := models.Task{
-		Title: title,
-		Body:  body,
-		Done:  done,
+		Title:  title,
+		Body:   body,
+		Folder: folder,
+		Done:   done,
 		UserID: "user1",
 	}
 	

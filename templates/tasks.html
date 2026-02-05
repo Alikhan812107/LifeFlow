@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LifeFlow Notes</title>
+    <title>LifeFlow Tasks</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,7 +14,7 @@
         }
         
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
             background: white;
             border-radius: 15px;
@@ -33,6 +33,26 @@
             font-size: 2.5rem;
             margin: 0 0 10px 0;
             font-weight: normal;
+        }
+        
+        .nav {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .nav a {
+            text-decoration: none;
+            color: #495057;
+            margin-right: 20px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        
+        .nav a:hover, .nav a.active {
+            background: #007bff;
+            color: white;
         }
         
         .add-section {
@@ -116,7 +136,7 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         
-        .notes-section {
+        .tasks-section {
             padding: 30px;
         }
         
@@ -141,64 +161,78 @@
             margin-bottom: 5px;
         }
         
-        .note-item {
+        .folder-section {
+            margin-bottom: 30px;
+        }
+        
+        .folder-header {
+            background: #e9ecef;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #495057;
+            font-size: 1.1rem;
+        }
+        
+        .task-item {
             background: white;
             border: 2px solid #f1f3f4;
             border-radius: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             padding: 20px;
             transition: all 0.3s;
         }
         
-        .note-item:hover {
+        .task-item:hover {
             border-color: #4facfe;
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
         
-        .note-item.completed {
+        .task-item.completed {
             background: #f8f9fa;
             border-color: #28a745;
         }
         
-        .note-item.editing {
+        .task-item.editing {
             border-color: #ffc107;
             background: #fff3cd;
         }
         
-        .note-header {
+        .task-header {
             display: flex;
             align-items: center;
             margin-bottom: 15px;
         }
         
-        .note-checkbox {
+        .task-checkbox {
             width: 20px;
             height: 20px;
             margin-right: 15px;
             cursor: pointer;
         }
         
-        .note-title {
+        .task-title {
             flex: 1;
             font-size: 1.2rem;
             font-weight: bold;
             color: #495057;
         }
         
-        .note-item.completed .note-title {
+        .task-item.completed .task-title {
             text-decoration: line-through;
             color: #6c757d;
         }
         
-        .note-body {
+        .task-body {
             margin: 15px 0;
             color: #6c757d;
             line-height: 1.5;
             white-space: pre-wrap;
         }
         
-        .note-actions {
+        .task-actions {
             display: flex;
             gap: 8px;
             margin-top: 15px;
@@ -248,7 +282,7 @@
                 flex-direction: column;
             }
             
-            .note-actions {
+            .task-actions {
                 flex-direction: column;
             }
             
@@ -266,30 +300,40 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>LifeFlow Notes</h1>
-            <p>Keep track of your thoughts and tasks</p>
+            <h1>LifeFlow Tasks</h1>
+            <p>Organize your tasks by folders</p>
+        </div>
+        
+        <div class="nav">
+            <a href="/" class="active">Tasks</a>
+            <a href="/notes">Notes</a>
+            <a href="/profile">Profile</a>
         </div>
         
         <div class="add-section">
-            <h2>Add New Note</h2>
+            <h2>Add New Task</h2>
             <form method="POST" action="/tasks/html">
                 <div class="form-group">
                     <label for="title">Title</label>
-                    <input type="text" name="title" id="title" class="form-control" placeholder="Enter note title" required>
+                    <input type="text" name="title" id="title" class="form-control" placeholder="Enter task title" required>
                 </div>
                 <div class="form-group">
-                    <label for="body">Content</label>
-                    <textarea name="body" id="body" class="form-control" placeholder="Write your note here..."></textarea>
+                    <label for="body">Description</label>
+                    <textarea name="body" id="body" class="form-control" placeholder="Task description..."></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Add Note</button>
+                <div class="form-group">
+                    <label for="folder">Folder</label>
+                    <input type="text" name="folder" id="folder" class="form-control" placeholder="General" value="General">
+                </div>
+                <button type="submit" class="btn btn-primary">Add Task</button>
             </form>
         </div>
         
-        <div class="notes-section">
-            {{if .}}
-                {{$total := len .}}
+        <div class="tasks-section">
+            {{if .Tasks}}
+                {{$total := len .Tasks}}
                 {{$completed := 0}}
-                {{range .}}
+                {{range .Tasks}}
                     {{if .Done}}
                         {{$completed = add $completed 1}}
                     {{end}}
@@ -298,7 +342,7 @@
                 <div class="stats">
                     <div class="stat-card">
                         <div class="stat-number">{{$total}}</div>
-                        <div class="stat-label">Total Notes</div>
+                        <div class="stat-label">Total Tasks</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-number">{{$completed}}</div>
@@ -310,57 +354,65 @@
                     </div>
                 </div>
                 
-                <h2>Your Notes</h2>
-                
-                {{range .}}
-                <div class="note-item {{if .Done}}completed{{end}}" id="note-{{.ID.Hex}}">
-                    <div class="note-header">
-                        <input type="checkbox" class="note-checkbox" {{if .Done}}checked{{end}} 
-                               onclick="window.location.href='/tasks/toggle?id={{.ID.Hex}}'">
-                        <div class="note-title">{{.Title}}</div>
+                {{range $folderName, $tasks := .Folders}}
+                <div class="folder-section">
+                    <div class="folder-header">📁 {{$folderName}} ({{len $tasks}} tasks)</div>
+                    
+                    {{range $tasks}}
+                    <div class="task-item {{if .Done}}completed{{end}}" id="task-{{.ID.Hex}}">
+                        <div class="task-header">
+                            <input type="checkbox" class="task-checkbox" {{if .Done}}checked{{end}} 
+                                   onclick="window.location.href='/tasks/toggle?id={{.ID.Hex}}'">
+                            <div class="task-title">{{.Title}}</div>
+                        </div>
+                        {{if .Body}}
+                        <div class="task-body">{{.Body}}</div>
+                        {{end}}
+                        
+                        <div class="task-actions">
+                            <a href="/tasks/toggle?id={{.ID.Hex}}" class="btn btn-success">
+                                {{if .Done}}Mark Active{{else}}Mark Done{{end}}
+                            </a>
+                            <button onclick="showEditForm('{{.ID.Hex}}')" class="btn btn-warning">Update</button>
+                            <a href="/tasks/delete?id={{.ID.Hex}}" class="btn btn-danger" 
+                               onclick="return confirm('Delete this task?')">Delete</a>
+                        </div>
+                        
+                        <div class="edit-form" id="edit-{{.ID.Hex}}">
+                            <form method="POST" action="/tasks/update">
+                                <input type="hidden" name="id" value="{{.ID.Hex}}">
+                                <div class="form-group">
+                                    <label>Title</label>
+                                    <input type="text" name="title" class="form-control" value="{{.Title}}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea name="body" class="form-control">{{.Body}}</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Folder</label>
+                                    <input type="text" name="folder" class="form-control" value="{{.Folder}}">
+                                </div>
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" name="done" {{if .Done}}checked{{end}}> 
+                                        Mark as completed
+                                    </label>
+                                </div>
+                                <div class="edit-actions">
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    <button type="button" onclick="hideEditForm('{{.ID.Hex}}')" class="btn btn-secondary">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                    {{if .Body}}
-                    <div class="note-body">{{.Body}}</div>
                     {{end}}
-                    
-                    <div class="note-actions">
-                        <a href="/tasks/toggle?id={{.ID.Hex}}" class="btn btn-success">
-                            {{if .Done}}Mark Active{{else}}Mark Done{{end}}
-                        </a>
-                        <button onclick="showEditForm('{{.ID.Hex}}')" class="btn btn-warning">Update</button>
-                        <a href="/tasks/delete?id={{.ID.Hex}}" class="btn btn-danger" 
-                           onclick="return confirm('Delete this note?')">Delete</a>
-                    </div>
-                    
-                    <div class="edit-form" id="edit-{{.ID.Hex}}">
-                        <form method="POST" action="/tasks/update">
-                            <input type="hidden" name="id" value="{{.ID.Hex}}">
-                            <div class="form-group">
-                                <label>Title</label>
-                                <input type="text" name="title" class="form-control" value="{{.Title}}" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Content</label>
-                                <textarea name="body" class="form-control">{{.Body}}</textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>
-                                    <input type="checkbox" name="done" {{if .Done}}checked{{end}}> 
-                                    Mark as completed
-                                </label>
-                            </div>
-                            <div class="edit-actions">
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
-                                <button type="button" onclick="hideEditForm('{{.ID.Hex}}')" class="btn btn-secondary">Cancel</button>
-                            </div>
-                        </form>
-                    </div>
                 </div>
                 {{end}}
             {{else}}
                 <div class="empty-state">
-                    <h3>No notes yet</h3>
-                    <p>Create your first note above!</p>
+                    <h3>No tasks yet</h3>
+                    <p>Create your first task above!</p>
                 </div>
             {{end}}
         </div>
@@ -369,29 +421,13 @@
     <script>
         function showEditForm(id) {
             document.getElementById('edit-' + id).classList.add('active');
-            document.getElementById('note-' + id).classList.add('editing');
+            document.getElementById('task-' + id).classList.add('editing');
         }
         
         function hideEditForm(id) {
             document.getElementById('edit-' + id).classList.remove('active');
-            document.getElementById('note-' + id).classList.remove('editing');
+            document.getElementById('task-' + id).classList.remove('editing');
         }
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.querySelector('form[action="/tasks/html"]');
-            const input = document.querySelector('#title');
-            
-            form.addEventListener('submit', function(e) {
-                if (input.value.trim() === '') {
-                    e.preventDefault();
-                    input.focus();
-                    input.style.borderColor = '#dc3545';
-                    setTimeout(() => {
-                        input.style.borderColor = '#e9ecef';
-                    }, 2000);
-                }
-            });
-        });
     </script>
 </body>
 </html>

@@ -1,48 +1,45 @@
 package main
 
 import (
-	"context"
-	"log"
-	"net/http"
-	"os"
-
 	"Assignment3/internal/app"
 	"Assignment3/internal/handlers"
 	"Assignment3/internal/repository"
 	"Assignment3/internal/service"
+	"log"
+	"os"
 
 	"github.com/joho/godotenv"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
-
-	_ = godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("no .env file")
+	}
 
 	mongoURI := os.Getenv("MONGO_URI")
 	if mongoURI == "" {
-		log.Fatal("MONGO_URI not set")
+		log.Fatal("need MONGO_URI")
 	}
 
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(mongoURI))
+	client, err := repository.NewMongoClient(mongoURI)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("cant connect to mongo:", err)
 	}
 
-	db := client.Database("lifeflow")
-
-	taskRepo := repository.NewMongoTaskRepository(db.Collection("tasks"))
-	userRepo := repository.NewUserMongoRepository(db)
-
+	taskCollection := client.Database("lifeflow").Collection("tasks")
+	taskRepo := repository.NewMongoTaskRepository(taskCollection)
 	taskService := service.NewTaskService(taskRepo)
-	authService := service.NewAuthService(userRepo, "super-secret-key")
-
 	taskHandler := handlers.NewTaskHandler(taskService)
-	authHandler := handlers.NewAuthHandler(authService)
 
-	app.RegisterRoutes(taskHandler, authHandler)
+	noteCollection := client.Database("lifeflow").Collection("notes")
+	noteRepo := repository.NewMongoNoteRepository(noteCollection)
+	noteService := service.NewNoteService(noteRepo)
+	noteHandler := handlers.NewNoteHandler(noteService)
 
-	log.Println("Server starting on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	userHandler := handlers.NewUserHandler(taskService, noteService)
+
+	app.RegisterRoutes(taskHandler, noteHandler, userHandler)
+	log.Println("server starting on :8080")
+	app.Start()
 }
