@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func RegisterRoutes(taskHandler *handlers.TaskHandler, noteHandler *handlers.NoteHandler, userHandler *handlers.UserHandler) {
+func RegisterRoutes(taskHandler *handlers.TaskHandler, noteHandler *handlers.NoteHandler, userHandler *handlers.UserHandler, sleepHandler *handlers.SleepHandler, nutritionHandler *handlers.NutritionHandler, activityHandler *handlers.ActivityHandler) {
 	http.HandleFunc("/tasks", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			taskHandler.Create(w, r)
@@ -37,6 +37,18 @@ func RegisterRoutes(taskHandler *handlers.TaskHandler, noteHandler *handlers.Not
 	http.HandleFunc("/notes/html", noteHandler.CreateFromHTML)
 	http.HandleFunc("/notes/update", noteHandler.UpdateFromHTML)
 	http.HandleFunc("/notes/delete", noteHandler.DeleteFromHTML)
+
+	http.HandleFunc("/sleep", sleepHandler.ViewHTML)
+	http.HandleFunc("/sleep/html", sleepHandler.CreateFromHTML)
+	http.HandleFunc("/sleep/json", sleepHandler.GetAllJSON)
+
+	http.HandleFunc("/nutrition", nutritionHandler.ViewHTML)
+	http.HandleFunc("/nutrition/html", nutritionHandler.CreateFromHTML)
+	http.HandleFunc("/nutrition/json", nutritionHandler.GetAllJSON)
+
+	http.HandleFunc("/activity", activityHandler.ViewHTML)
+	http.HandleFunc("/activity/html", activityHandler.CreateFromHTML)
+	http.HandleFunc("/activity/json", activityHandler.GetAllJSON)
 
 	http.HandleFunc("/profile", userHandler.ViewProfile)
 }

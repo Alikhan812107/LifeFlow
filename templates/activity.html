@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin: 0 0 10px 0;
+            font-weight: normal;
+        }
+        
+        .nav {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .nav a {
+            text-decoration: none;
+            color: #495057;
+            margin-right: 20px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        
+        .nav a:hover, .nav a.active {
+            background: #fa709a;
+            color: white;
+        }
+        
+        .add-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-control:focus {
+            border-color: #fa709a;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(250, 112, 154, 0.1);
+        }
+        
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .content-section {
+            padding: 30px;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            flex: 1;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .activities-list {
+            margin-top: 30px;
+        }
+        
+        .activity-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #fa709a;
+            transition: all 0.3s;
+        }
+        
+        .activity-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .activity-description {
+            font-size: 1.1rem;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        
+        .activity-time {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        @media (max-width: 768px) {
+            .stats {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Activity Tracker</h1>
+            <p>Track your daily activities</p>
+        </div>
+        
+        <div class="nav">
+            <a href="/">Tasks</a>
+            <a href="/notes">Notes</a>
+            <a href="/sleep">Sleep</a>
+            <a href="/nutrition">Nutrition</a>
+            <a href="/activity" class="active">Activity</a>
+            <a href="/profile">Profile</a>
+        </div>
+        
+        <div class="add-section">
+            <h2>Log Activity</h2>
+            <form method="POST" action="/activity/html">
+                <div class="form-group">
+                    <label for="description">What activities did you do?</label>
+                    <textarea name="description" id="description" class="form-control" placeholder="Describe your activities..." required></textarea>
+                </div>
+                <button type="submit" class="btn">Add Activity</button>
+            </form>
+        </div>
+        
+        <div class="content-section">
+            {{if .}}
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number">{{len .}}</div>
+                        <div class="stat-label">Total Activities</div>
+                    </div>
+                </div>
+                
+                <div class="activities-list">
+                    <h3>Your Activities</h3>
+                    {{range .}}
+                    <div class="activity-item">
+                        <div class="activity-description">{{.Description}}</div>
+                        <div class="activity-time">{{.Timestamp.Format "Monday, Jan 02, 2006 at 15:04"}}</div>
+                    </div>
+                    {{end}}
+                </div>
+            {{else}}
+                <div class="empty-state">
+                    <h3>No activities yet</h3>
+                    <p>Start tracking your activities above!</p>
+                </div>
+            {{end}}
+        </div>
+    </div>
+</body>
+</html>
