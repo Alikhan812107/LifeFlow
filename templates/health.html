@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .nav {
+            max-width: 1400px;
+            margin: 0 auto 30px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 30px;
+            border-radius: 50px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+        }
+        
+        .nav a {
+            text-decoration: none;
+            color: #495057;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .nav a:hover, .nav a.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            background: white;
+            padding: 10px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            background: transparent;
+            color: #6c757d;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(240, 147, 251, 0.4);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .health-grid {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            height: fit-content;
+        }
+        
+        .form-card h2 {
+            color: #f093fb;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 18px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: #f093fb;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(240, 147, 251, 0.1);
+        }
+        
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: normal;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(240, 147, 251, 0.4);
+        }
+        
+        .data-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        
+        .chart-container {
+            margin-bottom: 30px;
+        }
+        
+        .chart-container h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        
+        .records-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .record-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #f093fb;
+        }
+        
+        .record-item strong {
+            color: #f093fb;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        @media (max-width: 968px) {
+            .health-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/">Development</a>
+        <a href="/notes">Notes</a>
+        <a href="/health" class="active">Health</a>
+        <a href="/profile">Profile</a>
+    </div>
+    
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('sleep')">💤 Sleep</button>
+            <button class="tab-btn" onclick="switchTab('nutrition')">🍎 Nutrition</button>
+            <button class="tab-btn" onclick="switchTab('activity')">🏃 Activity</button>
+        </div>
+        
+        <div id="sleep-tab" class="tab-content active">
+            <div class="health-grid">
+                <div class="form-card">
+                    <h2>Log Sleep</h2>
+                    <form method="POST" action="/health/sleep">
+                        <div class="form-group">
+                            <label for="slept">When did you sleep?</label>
+                            <input type="datetime-local" name="slept" id="slept" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="woke_up">When did you wake up?</label>
+                            <input type="datetime-local" name="woke_up" id="woke_up" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn-submit">Add Sleep Record</button>
+                    </form>
+                </div>
+                
+                <div class="data-card">
+                    {{if .Sleeps}}
+                        <div class="chart-container">
+                            <h3>Sleep Duration (Hours)</h3>
+                            <canvas id="sleepChart"></canvas>
+                        </div>
+                        
+                        <div class="records-list">
+                            <h3>Recent Records</h3>
+                            {{range .Sleeps}}
+                            <div class="record-item">
+                                <strong>Slept:</strong> {{.Slept.Format "Jan 02, 2006 15:04"}} | 
+                                <strong>Woke Up:</strong> {{.WokeUp.Format "Jan 02, 2006 15:04"}}
+                            </div>
+                            {{end}}
+                        </div>
+                    {{else}}
+                        <div class="empty-state">
+                            <h3>No sleep records yet</h3>
+                            <p>Start tracking your sleep!</p>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        
+        <div id="nutrition-tab" class="tab-content">
+            <div class="health-grid">
+                <div class="form-card">
+                    <h2>Log Nutrition</h2>
+                    <form method="POST" action="/health/nutrition">
+                        <div class="form-group">
+                            <label for="calories">Calories</label>
+                            <input type="number" name="calories" id="calories" class="form-control" required min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="water">Water (litres)</label>
+                            <input type="number" step="0.1" name="water" id="water" class="form-control" required min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Did you eat healthy today?</label>
+                            <div class="radio-group">
+                                <label>
+                                    <input type="radio" name="healthy" value="yes" required> Yes
+                                </label>
+                                <label>
+                                    <input type="radio" name="healthy" value="no" required> No
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-submit">Add Nutrition Record</button>
+                    </form>
+                </div>
+                
+                <div class="data-card">
+                    {{if .Nutritions}}
+                        <div class="chart-container">
+                            <h3>Calories & Water</h3>
+                            <canvas id="nutritionChart"></canvas>
+                        </div>
+                        
+                        <div class="records-list">
+                            <h3>Recent Records</h3>
+                            {{range .Nutritions}}
+                            <div class="record-item">
+                                <strong>Date:</strong> {{.Timestamp.Format "Jan 02, 2006"}} | 
+                                <strong>Calories:</strong> {{.Calories}} | 
+                                <strong>Water:</strong> {{.Water}}L | 
+                                <strong>Healthy:</strong> {{if .Healthy}}Yes{{else}}No{{end}}
+                            </div>
+                            {{end}}
+                        </div>
+                    {{else}}
+                        <div class="empty-state">
+                            <h3>No nutrition records yet</h3>
+                            <p>Start tracking your nutrition!</p>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        
+        <div id="activity-tab" class="tab-content">
+            <div class="health-grid">
+                <div class="form-card">
+                    <h2>Log Activity</h2>
+                    <form method="POST" action="/health/activity">
+                        <div class="form-group">
+                            <label for="description">What activities did you do?</label>
+                            <textarea name="description" id="description" class="form-control" placeholder="Describe your activities..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">Add Activity</button>
+                    </form>
+                </div>
+                
+                <div class="data-card">
+                    {{if .Activities}}
+                        <div class="records-list">
+                            <h3>Your Activities ({{len .Activities}} total)</h3>
+                            {{range .Activities}}
+                            <div class="record-item">
+                                <div style="font-size: 1.1rem; color: #495057; margin-bottom: 5px;">{{.Description}}</div>
+                                <div style="color: #6c757d; font-size: 0.9rem;">{{.Timestamp.Format "Monday, Jan 02, 2006 at 15:04"}}</div>
+                            </div>
+                            {{end}}
+                        </div>
+                    {{else}}
+                        <div class="empty-state">
+                            <h3>No activities yet</h3>
+                            <p>Start tracking your activities!</p>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + '-tab').classList.add('active');
+        }
+        
+        {{if .Sleeps}}
+        const sleepData = [
+            {{range .Sleeps}}
+            {
+                slept: new Date('{{.Slept.Format "2006-01-02T15:04:05Z07:00"}}'),
+                wokeUp: new Date('{{.WokeUp.Format "2006-01-02T15:04:05Z07:00"}}'),
+                timestamp: new Date('{{.Timestamp.Format "2006-01-02T15:04:05Z07:00"}}')
+            },
+            {{end}}
+        ];
+        
+        const sleepLabels = sleepData.map(d => d.timestamp.toLocaleDateString());
+        const sleepDurations = sleepData.map(d => {
+            const diff = d.wokeUp - d.slept;
+            return (diff / (1000 * 60 * 60)).toFixed(2);
+        });
+        
+        const sleepCtx = document.getElementById('sleepChart').getContext('2d');
+        new Chart(sleepCtx, {
+            type: 'line',
+            data: {
+                labels: sleepLabels,
+                datasets: [{
+                    label: 'Sleep Duration (hours)',
+                    data: sleepDurations,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        {{end}}
+        
+        {{if .Nutritions}}
+        const nutritionData = [
+            {{range .Nutritions}}
+            {
+                calories: {{.Calories}},
+                water: {{.Water}},
+                timestamp: new Date('{{.Timestamp.Format "2006-01-02T15:04:05Z07:00"}}')
+            },
+            {{end}}
+        ];
+        
+        const nutritionLabels = nutritionData.map(d => d.timestamp.toLocaleDateString());
+        
+        const nutritionCtx = document.getElementById('nutritionChart').getContext('2d');
+        new Chart(nutritionCtx, {
+            type: 'bar',
+            data: {
+                labels: nutritionLabels,
+                datasets: [{
+                    label: 'Calories',
+                    data: nutritionData.map(d => d.calories),
+                    backgroundColor: 'rgba(240, 147, 251, 0.6)',
+                    borderColor: '#f093fb',
+                    borderWidth: 2,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Water (L)',
+                    data: nutritionData.map(d => d.water),
+                    backgroundColor: 'rgba(79, 172, 254, 0.6)',
+                    borderColor: '#4facfe',
+                    borderWidth: 2,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Calories'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        position: 'right',
+                        beginAtZero: true,
+                        grid: {
+                            drawOnChartArea: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Water (L)'
+                        }
+                    }
+                }
+            }
+        });
+        {{end}}
+    </script>
+</body>
+</html>

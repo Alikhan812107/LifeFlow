@@ -36,23 +36,30 @@
         }
         
         .nav {
-            background: #f8f9fa;
+            max-width: 800px;
+            margin: 0 auto 30px;
+            background: rgba(255, 255, 255, 0.95);
             padding: 15px 30px;
-            border-bottom: 1px solid #dee2e6;
+            border-radius: 50px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
         }
         
         .nav a {
             text-decoration: none;
             color: #495057;
-            margin-right: 20px;
-            padding: 8px 16px;
-            border-radius: 6px;
+            padding: 10px 20px;
+            border-radius: 25px;
             transition: all 0.3s;
+            font-weight: 500;
         }
         
         .nav a:hover, .nav a.active {
-            background: #6f42c1;
+            background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
             color: white;
+            transform: translateY(-2px);
         }
         
         .profile-section {
@@ -210,17 +217,10 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>User Profile</h1>
-            <p>Your account information and statistics</p>
-        </div>
-        
         <div class="nav">
-            <a href="/">Tasks</a>
+            <a href="/">Development</a>
             <a href="/notes">Notes</a>
-            <a href="/sleep">Sleep</a>
-            <a href="/nutrition">Nutrition</a>
-            <a href="/activity">Activity</a>
+            <a href="/health">Health</a>
             <a href="/profile" class="active">Profile</a>
         </div>
         

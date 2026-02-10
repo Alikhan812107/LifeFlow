@@ -126,7 +126,7 @@ func (h *TaskHandler) ViewHTML(w http.ResponseWriter, r *http.Request) {
 		Folders: folders,
 	}
 	
-	tmpl := template.Must(template.New("tasks.html").Funcs(funcMap).ParseFiles("templates/tasks.html"))
+	tmpl := template.Must(template.New("development.html").Funcs(funcMap).ParseFiles("templates/development.html"))
 	tmpl.Execute(w, data)
 }
 
