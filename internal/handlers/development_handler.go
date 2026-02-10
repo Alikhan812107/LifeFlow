@@ -36,7 +36,8 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) GetAll(w http.ResponseWriter, r *http.Request) {
-	tasks, err := h.service.GetAll()
+	userID := middleware.GetUserID(r)
+	tasks, err := h.service.GetAll(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -99,7 +100,8 @@ func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) ViewHTML(w http.ResponseWriter, r *http.Request) {
-	tasks, err := h.service.GetAll()
+	userID := middleware.GetUserID(r)
+	tasks, err := h.service.GetAll(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

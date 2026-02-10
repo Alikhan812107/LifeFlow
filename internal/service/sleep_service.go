@@ -17,6 +17,6 @@ func (s *SleepService) Create(sleep models.Sleep) (models.Sleep, error) {
 	return s.repo.Create(sleep)
 }
 
-func (s *SleepService) GetAll() ([]models.Sleep, error) {
-	return s.repo.GetAll()
+func (s *SleepService) GetAll(userID string) ([]models.Sleep, error) {
+	return s.repo.GetAll(userID)
 }

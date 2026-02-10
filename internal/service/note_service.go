@@ -18,8 +18,8 @@ func (s *NoteService) Create(note models.Note) (models.Note, error) {
 	return s.repo.Create(note)
 }
 
-func (s *NoteService) GetAll() ([]models.Note, error) {
-	return s.repo.GetAll()
+func (s *NoteService) GetAll(userID string) ([]models.Note, error) {
+	return s.repo.GetAll(userID)
 }
 
 func (s *NoteService) GetByID(id primitive.ObjectID) (models.Note, error) {

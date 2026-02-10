@@ -43,13 +43,13 @@ func (h *UserHandler) ViewProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	tasks, err := h.taskService.GetAll()
+	tasks, err := h.taskService.GetAll(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	
-	notes, err := h.noteService.GetAll()
+	notes, err := h.noteService.GetAll(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -17,6 +17,6 @@ func (s *ActivityService) Create(activity models.Activity) (models.Activity, err
 	return s.repo.Create(activity)
 }
 
-func (s *ActivityService) GetAll() ([]models.Activity, error) {
-	return s.repo.GetAll()
+func (s *ActivityService) GetAll(userID string) ([]models.Activity, error) {
+	return s.repo.GetAll(userID)
 }

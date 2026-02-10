@@ -23,10 +23,10 @@ func (r *MongoActivityRepository) Create(activity models.Activity) (models.Activ
 	return activity, err
 }
 
-func (r *MongoActivityRepository) GetAll() ([]models.Activity, error) {
+func (r *MongoActivityRepository) GetAll(userID string) ([]models.Activity, error) {
 	var activities []models.Activity
 	opts := options.Find().SetSort(bson.D{{Key: "timestamp", Value: -1}})
-	cursor, err := r.collection.Find(context.Background(), bson.M{}, opts)
+	cursor, err := r.collection.Find(context.Background(), bson.M{"user_id": userID}, opts)
 	if err != nil {
 		return nil, err
 	}

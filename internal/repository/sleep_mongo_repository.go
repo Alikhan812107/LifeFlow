@@ -23,10 +23,10 @@ func (r *MongoSleepRepository) Create(sleep models.Sleep) (models.Sleep, error) 
 	return sleep, err
 }
 
-func (r *MongoSleepRepository) GetAll() ([]models.Sleep, error) {
+func (r *MongoSleepRepository) GetAll(userID string) ([]models.Sleep, error) {
 	var sleeps []models.Sleep
 	opts := options.Find().SetSort(bson.D{{Key: "timestamp", Value: -1}})
-	cursor, err := r.collection.Find(context.Background(), bson.M{}, opts)
+	cursor, err := r.collection.Find(context.Background(), bson.M{"user_id": userID}, opts)
 	if err != nil {
 		return nil, err
 	}

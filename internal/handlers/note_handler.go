@@ -36,7 +36,8 @@ func (h *NoteHandler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *NoteHandler) GetAll(w http.ResponseWriter, r *http.Request) {
-	notes, err := h.service.GetAll()
+	userID := middleware.GetUserID(r)
+	notes, err := h.service.GetAll(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -46,7 +47,8 @@ func (h *NoteHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *NoteHandler) ViewHTML(w http.ResponseWriter, r *http.Request) {
-	notes, err := h.service.GetAll()
+	userID := middleware.GetUserID(r)
+	notes, err := h.service.GetAll(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

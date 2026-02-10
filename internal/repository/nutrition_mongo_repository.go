@@ -23,10 +23,10 @@ func (r *MongoNutritionRepository) Create(nutrition models.Nutrition) (models.Nu
 	return nutrition, err
 }
 
-func (r *MongoNutritionRepository) GetAll() ([]models.Nutrition, error) {
+func (r *MongoNutritionRepository) GetAll(userID string) ([]models.Nutrition, error) {
 	var nutritions []models.Nutrition
 	opts := options.Find().SetSort(bson.D{{Key: "timestamp", Value: -1}})
-	cursor, err := r.collection.Find(context.Background(), bson.M{}, opts)
+	cursor, err := r.collection.Find(context.Background(), bson.M{"user_id": userID}, opts)
 	if err != nil {
 		return nil, err
 	}

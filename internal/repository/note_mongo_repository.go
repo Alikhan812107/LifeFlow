@@ -24,9 +24,9 @@ func (r *MongoNoteRepository) Create(note models.Note) (models.Note, error) {
 	return note, err
 }
 
-func (r *MongoNoteRepository) GetAll() ([]models.Note, error) {
+func (r *MongoNoteRepository) GetAll(userID string) ([]models.Note, error) {
 	var notes []models.Note
-	cursor, err := r.collection.Find(context.Background(), bson.M{})
+	cursor, err := r.collection.Find(context.Background(), bson.M{"user_id": userID})
 	if err != nil {
 		return nil, err
 	}

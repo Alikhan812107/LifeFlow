@@ -24,9 +24,9 @@ func (r *MongoTaskRepository) Create(task models.Task) (models.Task, error) {
 	return task, err
 }
 
-func (r *MongoTaskRepository) GetAll() ([]models.Task, error) {
+func (r *MongoTaskRepository) GetAll(userID string) ([]models.Task, error) {
 	var tasks []models.Task
-	cursor, err := r.collection.Find(context.Background(), bson.M{})
+	cursor, err := r.collection.Find(context.Background(), bson.M{"user_id": userID})
 	if err != nil {
 		return nil, err
 	}

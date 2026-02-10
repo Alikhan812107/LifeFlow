@@ -25,9 +25,10 @@ func NewHealthHandler(sleepService *service.SleepService, nutritionService *serv
 }
 
 func (h *HealthHandler) ViewHTML(w http.ResponseWriter, r *http.Request) {
-	sleeps, _ := h.sleepService.GetAll()
-	nutritions, _ := h.nutritionService.GetAll()
-	activities, _ := h.activityService.GetAll()
+	userID := middleware.GetUserID(r)
+	sleeps, _ := h.sleepService.GetAll(userID)
+	nutritions, _ := h.nutritionService.GetAll(userID)
+	activities, _ := h.activityService.GetAll(userID)
 	
 	data := struct {
 		Sleeps     []models.Sleep

@@ -18,8 +18,8 @@ func (s *TaskService) Create(task models.Task) (models.Task, error) {
 	return s.repo.Create(task)
 }
 
-func (s *TaskService) GetAll() ([]models.Task, error) {
-	return s.repo.GetAll()
+func (s *TaskService) GetAll(userID string) ([]models.Task, error) {
+	return s.repo.GetAll(userID)
 }
 
 func (s *TaskService) GetByID(id primitive.ObjectID) (models.Task, error) {

@@ -7,7 +7,7 @@ import (
 
 type NoteRepository interface {
 	Create(note models.Note) (models.Note, error)
-	GetAll() ([]models.Note, error)
+	GetAll(userID string) ([]models.Note, error)
 	GetByID(id primitive.ObjectID) (models.Note, error)
 	Update(id primitive.ObjectID, note models.Note) (models.Note, error)
 	Delete(id primitive.ObjectID) error

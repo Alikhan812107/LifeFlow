@@ -17,6 +17,6 @@ func (s *NutritionService) Create(nutrition models.Nutrition) (models.Nutrition,
 	return s.repo.Create(nutrition)
 }
 
-func (s *NutritionService) GetAll() ([]models.Nutrition, error) {
-	return s.repo.GetAll()
+func (s *NutritionService) GetAll(userID string) ([]models.Nutrition, error) {
+	return s.repo.GetAll(userID)
 }
