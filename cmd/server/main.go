@@ -37,6 +37,11 @@ func main() {
 	noteService := service.NewNoteService(noteRepo)
 	noteHandler := handlers.NewNoteHandler(noteService)
 
+	userCollection := client.Database("lifeflow").Collection("users")
+	userRepo := repository.NewMongoUserRepository(userCollection)
+	userService := service.NewUserService(userRepo)
+	authHandler := handlers.NewAuthHandler(userService)
+
 	sleepCollection := client.Database("lifeflow").Collection("sleep")
 	sleepRepo := repository.NewMongoSleepRepository(sleepCollection)
 	sleepService := service.NewSleepService(sleepRepo)
@@ -51,9 +56,9 @@ func main() {
 
 	healthHandler := handlers.NewHealthHandler(sleepService, nutritionService, activityService)
 
-	userHandler := handlers.NewUserHandler(taskService, noteService)
+	userHandler := handlers.NewUserHandler(taskService, noteService, userService)
 
-	app.RegisterRoutes(taskHandler, noteHandler, userHandler, healthHandler)
+	app.RegisterRoutes(taskHandler, noteHandler, userHandler, healthHandler, authHandler)
 	log.Println("server starting on :8080")
 	app.Start()
 }

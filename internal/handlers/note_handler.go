@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"Assignment3/internal/middleware"
 	"Assignment3/internal/models"
 	"Assignment3/internal/service"
 	"encoding/json"
@@ -59,6 +60,13 @@ func (h *NoteHandler) CreateFromHTML(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "wrong method", http.StatusMethodNotAllowed)
 		return
 	}
+	
+	userID := middleware.GetUserID(r)
+	if userID == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	
 	title := r.FormValue("title")
 	description := r.FormValue("description")
 	if title == "" {
@@ -68,7 +76,7 @@ func (h *NoteHandler) CreateFromHTML(w http.ResponseWriter, r *http.Request) {
 	note := models.Note{
 		Title:       title,
 		Description: description,
-		UserID:      "user1",
+		UserID:      userID,
 	}
 	_, err := h.service.Create(note)
 	if err != nil {
@@ -100,7 +108,7 @@ func (h *NoteHandler) UpdateFromHTML(w http.ResponseWriter, r *http.Request) {
 	note := models.Note{
 		Title:       title,
 		Description: description,
-		UserID:      "user1",
+		UserID:      middleware.GetUserID(r),
 	}
 	
 	_, err = h.service.Update(id, note)

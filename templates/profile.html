@@ -264,7 +264,7 @@
                 </div>
                 <div class="info-item">
                     <span class="info-label">User ID</span>
-                    <span class="info-value">{{.User.ID}}</span>
+                    <span class="info-value">{{.User.ID.Hex}}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Total Items</span>
@@ -287,8 +287,9 @@
                     <span>⚙️</span>
                     Quick Actions
                 </div>
-                <a href="/" class="btn btn-primary">Go to Tasks</a>
+                <a href="/" class="btn btn-primary">Go to Development</a>
                 <a href="/notes" class="btn btn-primary">Go to Notes</a>
+                <a href="/logout" class="btn btn-primary" style="background: #dc3545;">Logout</a>
             </div>
         </div>
     </div>

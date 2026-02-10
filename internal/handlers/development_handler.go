@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"Assignment3/internal/middleware"
 	"Assignment3/internal/models"
 	"Assignment3/internal/service"
 	"encoding/json"
@@ -135,6 +136,13 @@ func (h *TaskHandler) CreateFromHTML(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "wrong method", http.StatusMethodNotAllowed)
 		return
 	}
+	
+	userID := middleware.GetUserID(r)
+	if userID == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	
 	title := r.FormValue("title")
 	body := r.FormValue("body")
 	folder := r.FormValue("folder")
@@ -150,7 +158,7 @@ func (h *TaskHandler) CreateFromHTML(w http.ResponseWriter, r *http.Request) {
 		Body:   body,
 		Folder: folder,
 		Done:   false,
-		UserID: "user1",
+		UserID: userID,
 	}
 	_, err := h.service.Create(task)
 	if err != nil {
@@ -189,7 +197,7 @@ func (h *TaskHandler) UpdateFromHTML(w http.ResponseWriter, r *http.Request) {
 		Body:   body,
 		Folder: folder,
 		Done:   done,
-		UserID: "user1",
+		UserID: middleware.GetUserID(r),
 	}
 	
 	_, err = h.service.Update(id, task)

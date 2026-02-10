@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"Assignment3/internal/middleware"
 	"Assignment3/internal/models"
 	"Assignment3/internal/service"
 	"html/template"
@@ -66,7 +67,7 @@ func (h *HealthHandler) CreateSleep(w http.ResponseWriter, r *http.Request) {
 	sleep := models.Sleep{
 		WokeUp:    wokeUp,
 		Slept:     slept,
-		UserID:    "user1",
+		UserID:    middleware.GetUserID(r),
 		Timestamp: time.Now(),
 	}
 	
@@ -107,7 +108,7 @@ func (h *HealthHandler) CreateNutrition(w http.ResponseWriter, r *http.Request) 
 		Calories:  calories,
 		Water:     water,
 		Healthy:   healthy,
-		UserID:    "user1",
+		UserID:    middleware.GetUserID(r),
 		Timestamp: time.Now(),
 	}
 	
@@ -134,7 +135,7 @@ func (h *HealthHandler) CreateActivity(w http.ResponseWriter, r *http.Request) {
 	
 	activity := models.Activity{
 		Description: description,
-		UserID:      "user1",
+		UserID:      middleware.GetUserID(r),
 		Timestamp:   time.Now(),
 	}
 	
