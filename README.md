@@ -1,83 +1,73 @@
-# LifeFlow - Task & Notes App
+# LifeFlow - Personal Productivity & Health Tracker
 
-Простое приложение для тасков и заметок с Go и MongoDB.
+Simple web app for managing tasks, notes, and health tracking built with Go and MongoDB.
 
-## Что умеет
+## Features
 
-- создавать таски с папками
-- отмечать таски как выполненные
-- создавать простые заметки (без тасков)
-- трекать сон (когда лег спать и проснулся)
-- трекать питание (калории, вода, здоровое питание)
-- записывать активности
-- смотреть профиль пользователя
-- все операции CRUD
-- графики через Chart.js
+- Create and organize tasks with folders
+- Mark tasks as complete/incomplete
+- Create simple notes (title + description)
+- Track sleep patterns (bedtime and wake time)
+- Track nutrition (calories, water intake, healthy eating)
+- Log daily activities
+- View user profile with statistics
+- Upload custom avatar image
+- Full CRUD operations for all entities
+- Interactive charts using Chart.js
 
-## Как запустить
+## Quick Start
 
-1. запустить mongodb
-2. скопировать `.env.example` в `.env` 
-3. запустить: `go run cmd/server/main.go`
-4. открыть: http://localhost:8080
+1. Start MongoDB
+2. Copy `.env.example` to `.env` and set your `MONGO_URI`
+3. Run: `go run cmd/server/main.go`
+4. Open: http://localhost:8080
 
-## Страницы
+## Pages
 
-- **Tasks** (`/`) - таски с папками и inline редактированием
-- **Notes** (`/notes`) - простые заметки без статуса
-- **Sleep** (`/sleep`) - трекинг сна с графиком длительности
-- **Nutrition** (`/nutrition`) - трекинг питания с графиками калорий, воды и здорового питания
-- **Activity** (`/activity`) - запись активностей
-- **Profile** (`/profile`) - инфо о пользователе и статистика
+- **Development** (`/`) - Task management with folders and inline editing
+- **Notes** (`/notes`) - Simple note-taking without status tracking
+- **Health** (`/health`) - Track sleep, nutrition, and activities with charts
+- **Profile** (`/profile`) - User info, statistics, and avatar upload
 
-## Что добавлено
+## Architecture
 
-- папки для тасков (можно сортировать)
-- отдельная страница заметок (title + description)
-- страница профиля с статистикой
-- трекинг сна с временем засыпания и пробуждения
-- трекинг питания (калории, вода, здоровое питание да/нет)
-- запись активностей с временными метками
-- графики через Chart.js для визуализации данных
-- все данные хранятся в MongoDB как time series
-- навигация между страницами
-- все CRUD операции на каждой странице
-- код написан как студент
+3-layer architecture pattern:
 
-## API
+```
+Handler -> Service -> Repository -> MongoDB
+```
 
-**Tasks:**
-- `GET /` - главная страница с тасками
-- `POST /tasks/html` - создать таск
-- `POST /tasks/update` - обновить таск
-- `GET /tasks/toggle?id=<id>` - переключить статус
-- `GET /tasks/delete?id=<id>` - удалить таск
+- **Handler**: HTTP request handling, form parsing, template rendering
+- **Service**: Business logic layer (currently thin, delegates to repository)
+- **Repository**: Database operations using MongoDB driver
+- **Models**: Data structures with JSON and BSON tags
 
-**Notes:**
-- `GET /notes` - страница заметок
-- `POST /notes/html` - создать заметку
-- `POST /notes/update` - обновить заметку
-- `GET /notes/delete?id=<id>` - удалить заметку
+## API Endpoints
 
-**Sleep:**
-- `GET /sleep` - страница трекинга сна
-- `POST /sleep/html` - добавить запись сна
-- `GET /sleep/json` - получить все записи в JSON
+### Tasks
+- `GET /` - Main page with tasks
+- `POST /development/html` - Create task
+- `POST /development/update` - Update task
+- `GET /development/toggle?id=<id>` - Toggle task status
+- `GET /development/delete?id=<id>` - Delete task
 
-**Nutrition:**
-- `GET /nutrition` - страница трекинга питания
-- `POST /nutrition/html` - добавить запись питания
-- `GET /nutrition/json` - получить все записи в JSON
+### Notes
+- `GET /notes` - Notes page
+- `POST /notes/html` - Create note
+- `POST /notes/update` - Update note
+- `GET /notes/delete?id=<id>` - Delete note
 
-**Activity:**
-- `GET /activity` - страница активностей
-- `POST /activity/html` - добавить активность
-- `GET /activity/json` - получить все активности в JSON
+### Health
+- `GET /health` - Health tracking page
+- `POST /health/sleep` - Add sleep record
+- `POST /health/nutrition` - Add nutrition record
+- `POST /health/activity` - Add activity record
 
-**Profile:**
-- `GET /profile` - профиль пользователя
+### Profile
+- `GET /profile` - User profile page
+- `POST /profile/avatar` - Upload avatar image (max 10MB)
 
-## Структуры
+## Data Models
 
 ```go
 type Task struct {
@@ -126,5 +116,57 @@ type User struct {
     Email    string `json:"email" bson:"email"`
     TasksNum int    `json:"tasks_num" bson:"tasks_num"`
     NotesNum int    `json:"notes_num" bson:"notes_num"`
+    Avatar   string `json:"avatar" bson:"avatar"`
 }
+```
+
+## MongoDB Collections
+
+- `tasks` - User tasks with folder organization
+- `notes` - Simple notes
+- `sleep` - Sleep tracking records
+- `nutrition` - Nutrition tracking records
+- `activity` - Activity logs
+- `users` - User profiles with avatar (stored as base64)
+
+## Tech Stack
+
+- Go 1.x
+- MongoDB (with official Go driver)
+- HTML templates
+- Chart.js for data visualization
+- Pure CSS (no frameworks)
+
+## Project Structure
+
+```
+.
+├── cmd/
+│   └── server/
+│       └── main.go              # Entry point
+├── internal/
+│   ├── app/
+│   │   ├── router.go            # Route registration
+│   │   └── server.go            # HTTP server
+│   ├── handlers/                # HTTP handlers
+│   ├── service/                 # Business logic
+│   ├── repository/              # Database operations
+│   └── models/                  # Data structures
+└── templates/                   # HTML templates
+```
+
+## How Avatar Upload Works
+
+1. User selects image file on profile page
+2. Form submits to `/profile/avatar` with multipart/form-data
+3. Handler reads file bytes (max 10MB)
+4. Converts image to base64 string
+5. Saves to MongoDB users collection
+6. On profile load, retrieves base64 string
+7. Displays as `<img src="data:image/jpeg;base64,...">`
+
+## Environment Variables
+
+```
+MONGO_URI=mongodb://localhost:27017
 ```
