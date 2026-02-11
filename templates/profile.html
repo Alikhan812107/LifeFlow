@@ -85,6 +85,13 @@
             justify-content: center;
             font-size: 3rem;
             color: white;
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
         .profile-name {
@@ -203,6 +210,29 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
+
+        .avatar-upload {
+            margin-top: 15px;
+        }
+
+        .avatar-upload input[type="file"] {
+            display: none;
+        }
+
+        .avatar-upload label {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .avatar-upload label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
         
         @media (max-width: 768px) {
             .stats-grid {
@@ -226,9 +256,19 @@
         
         <div class="profile-section">
             <div class="profile-card">
-                <div class="profile-avatar">👤</div>
+                <div class="profile-avatar">
+                    {{if .User.Avatar}}
+                        <img src="data:image/jpeg;base64,{{.User.Avatar}}" alt="Avatar">
+                    {{else}}
+                        👤
+                    {{end}}
+                </div>
                 <div class="profile-name">{{.User.Name}}</div>
                 <div class="profile-email">{{.User.Email}}</div>
+                <form action="/profile/avatar" method="POST" enctype="multipart/form-data" class="avatar-upload">
+                    <input type="file" id="avatar" name="avatar" accept="image/*" onchange="this.form.submit()">
+                    <label for="avatar">Change Avatar</label>
+                </form>
             </div>
             
             <div class="stats-grid">

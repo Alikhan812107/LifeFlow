@@ -44,4 +44,5 @@ func RegisterRoutes(taskHandler *handlers.TaskHandler, noteHandler *handlers.Not
 	http.HandleFunc("/health/activity", healthHandler.CreateActivity)
 
 	http.HandleFunc("/profile", userHandler.ViewProfile)
+	http.HandleFunc("/profile/avatar", userHandler.UploadAvatar)
 }

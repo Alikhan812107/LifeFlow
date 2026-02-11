@@ -3,19 +3,23 @@ package handlers
 import (
 	"Assignment3/internal/models"
 	"Assignment3/internal/service"
+	"encoding/base64"
 	"html/template"
+	"io"
 	"net/http"
 )
 
 type UserHandler struct {
 	taskService *service.TaskService
 	noteService *service.NoteService
+	userService *service.UserService
 }
 
-func NewUserHandler(taskService *service.TaskService, noteService *service.NoteService) *UserHandler {
+func NewUserHandler(taskService *service.TaskService, noteService *service.NoteService, userService *service.UserService) *UserHandler {
 	return &UserHandler{
 		taskService: taskService,
 		noteService: noteService,
+		userService: userService,
 	}
 }
 
@@ -25,48 +29,86 @@ func (h *UserHandler) ViewProfile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	notes, err := h.noteService.GetAll()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	completedTasks := 0
 	for _, task := range tasks {
 		if task.Done {
 			completedTasks++
 		}
 	}
-	
-	user := models.User{
-		ID:       "user1",
-		Name:     "John Student",
-		Email:    "john@student.com",
-		TasksNum: len(tasks),
-		NotesNum: len(notes),
+
+	user, err := h.userService.GetByID("user1")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	
+
+	user.TasksNum = len(tasks)
+	user.NotesNum = len(notes)
+
 	data := struct {
 		User           models.User
 		CompletedTasks int
 		ActiveTasks    int
 	}{
-		User:           user,
+		User:           *user,
 		CompletedTasks: completedTasks,
 		ActiveTasks:    len(tasks) - completedTasks,
 	}
-	
+
 	funcMap := template.FuncMap{
 		"add": func(a, b int) int { return a + b },
 		"mul": func(a, b int) int { return a * b },
-		"div": func(a, b int) int { 
-			if b == 0 { return 0 }
-			return a / b 
+		"div": func(a, b int) int {
+			if b == 0 {
+				return 0
+			}
+			return a / b
 		},
 		"gt": func(a, b int) bool { return a > b },
 	}
-	
+
 	tmpl := template.Must(template.New("profile.html").Funcs(funcMap).ParseFiles("templates/profile.html"))
-	tmpl.Execute(w, data)
+	_ = tmpl.Execute(w, data)
+}
+func (h *UserHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	err := r.ParseMultipartForm(10 << 20)
+	if err != nil {
+		http.Error(w, "File too large", http.StatusBadRequest)
+		return
+	}
+
+	file, _, err := r.FormFile("avatar")
+	if err != nil {
+		http.Error(w, "Error retrieving file", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	bytes, err := io.ReadAll(file)
+	if err != nil {
+		http.Error(w, "Error reading file", http.StatusInternalServerError)
+		return
+	}
+
+	base64Image := base64.StdEncoding.EncodeToString(bytes)
+
+	err = h.userService.UpdateAvatar("user1", base64Image)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/profile", http.StatusSeeOther)
 }

@@ -51,7 +51,10 @@ func main() {
 
 	healthHandler := handlers.NewHealthHandler(sleepService, nutritionService, activityService)
 
-	userHandler := handlers.NewUserHandler(taskService, noteService)
+	db := client.Database("lifeflow")
+	userRepo := repository.NewUserMongoRepository(db)
+	userService := service.NewUserService(userRepo)
+	userHandler := handlers.NewUserHandler(taskService, noteService, userService)
 
 	app.RegisterRoutes(taskHandler, noteHandler, userHandler, healthHandler)
 	log.Println("server starting on :8080")
