@@ -56,6 +56,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		Name:     name,
 		Email:    email,
 		Password: string(hashedPassword),
+		Role:     "free",
 	}
 
 	_, err = h.userService.Create(user)

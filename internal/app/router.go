@@ -64,4 +64,5 @@ func RegisterRoutes(taskHandler *handlers.TaskHandler, noteHandler *handlers.Not
 
 	http.HandleFunc("/profile", middleware.RequireAuth(userHandler.ViewProfile))
 	http.HandleFunc("/profile/avatar", middleware.RequireAuth(userHandler.UploadAvatar))
+	http.HandleFunc("/profile/upgrade", middleware.RequireAuth(userHandler.UpgradeSubscription))
 }

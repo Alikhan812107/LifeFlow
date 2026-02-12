@@ -12,11 +12,15 @@ import (
 )
 
 type NoteHandler struct {
-	service *service.NoteService
+	service     *service.NoteService
+	userService *service.UserService
 }
 
-func NewNoteHandler(service *service.NoteService) *NoteHandler {
-	return &NoteHandler{service: service}
+func NewNoteHandler(service *service.NoteService, userService *service.UserService) *NoteHandler {
+	return &NoteHandler{
+		service:     service,
+		userService: userService,
+	}
 }
 
 func (h *NoteHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -52,13 +56,35 @@ func (h *NoteHandler) ViewHTML(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
+	user, err := h.userService.GetByID(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	
+	userRole := user.Role
+	if userRole == "" {
+		userRole = "free"
+	}
+	
 	notes, err := h.service.GetAllByUserID(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	
+	data := struct {
+		Notes []models.Note
+		Role  string
+		Count int
+	}{
+		Notes: notes,
+		Role:  userRole,
+		Count: len(notes),
+	}
+	
 	tmpl := template.Must(template.ParseFiles("templates/notes.html"))
-	tmpl.Execute(w, notes)
+	tmpl.Execute(w, data)
 }
 
 func (h *NoteHandler) CreateFromHTML(w http.ResponseWriter, r *http.Request) {
@@ -73,6 +99,29 @@ func (h *NoteHandler) CreateFromHTML(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
+	user, err := h.userService.GetByID(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	
+	userRole := user.Role
+	if userRole == "" {
+		userRole = "free"
+	}
+	
+	if userRole == "free" {
+		notes, err := h.service.GetAllByUserID(userID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if len(notes) >= 10 {
+			http.Error(w, "Free users can only create 10 notes. Upgrade to premium for unlimited notes.", http.StatusForbidden)
+			return
+		}
+	}
+	
 	title := r.FormValue("title")
 	description := r.FormValue("description")
 	if title == "" {
@@ -84,7 +133,7 @@ func (h *NoteHandler) CreateFromHTML(w http.ResponseWriter, r *http.Request) {
 		Description: description,
 		UserID:      userID,
 	}
-	_, err := h.service.Create(note)
+	_, err = h.service.Create(note)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

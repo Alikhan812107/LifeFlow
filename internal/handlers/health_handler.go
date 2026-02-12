@@ -14,13 +14,15 @@ type HealthHandler struct {
 	sleepService     *service.SleepService
 	nutritionService *service.NutritionService
 	activityService  *service.ActivityService
+	userService      *service.UserService
 }
 
-func NewHealthHandler(sleepService *service.SleepService, nutritionService *service.NutritionService, activityService *service.ActivityService) *HealthHandler {
+func NewHealthHandler(sleepService *service.SleepService, nutritionService *service.NutritionService, activityService *service.ActivityService, userService *service.UserService) *HealthHandler {
 	return &HealthHandler{
 		sleepService:     sleepService,
 		nutritionService: nutritionService,
 		activityService:  activityService,
+		userService:      userService,
 	}
 }
 
@@ -31,6 +33,17 @@ func (h *HealthHandler) ViewHTML(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
+	user, err := h.userService.GetByID(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	
+	userRole := user.Role
+	if userRole == "" {
+		userRole = "free"
+	}
+	
 	sleeps, _ := h.sleepService.GetAllByUserID(userID)
 	nutritions, _ := h.nutritionService.GetAllByUserID(userID)
 	activities, _ := h.activityService.GetAllByUserID(userID)
@@ -39,10 +52,12 @@ func (h *HealthHandler) ViewHTML(w http.ResponseWriter, r *http.Request) {
 		Sleeps     []models.Sleep
 		Nutritions []models.Nutrition
 		Activities []models.Activity
+		Role       string
 	}{
 		Sleeps:     sleeps,
 		Nutritions: nutritions,
 		Activities: activities,
+		Role:       userRole,
 	}
 	
 	tmpl := template.Must(template.ParseFiles("templates/health.html"))

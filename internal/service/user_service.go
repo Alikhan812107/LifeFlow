@@ -28,3 +28,7 @@ func (s *UserService) Create(user models.User) (*models.User, error) {
 func (s *UserService) UpdateAvatar(id string, avatar string) error {
 	return s.repo.UpdateAvatar(id, avatar)
 }
+
+func (s *UserService) UpdateRole(id string, role string) error {
+	return s.repo.UpdateRole(id, role)
+}

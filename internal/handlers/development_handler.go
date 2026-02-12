@@ -12,11 +12,15 @@ import (
 )
 
 type TaskHandler struct {
-	service *service.TaskService
+	service     *service.TaskService
+	userService *service.UserService
 }
 
-func NewTaskHandler(service *service.TaskService) *TaskHandler {
-	return &TaskHandler{service: service}
+func NewTaskHandler(service *service.TaskService, userService *service.UserService) *TaskHandler {
+	return &TaskHandler{
+		service:     service,
+		userService: userService,
+	}
 }
 
 func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -105,6 +109,17 @@ func (h *TaskHandler) ViewHTML(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
+	user, err := h.userService.GetByID(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	
+	userRole := user.Role
+	if userRole == "" {
+		userRole = "free"
+	}
+	
 	tasks, err := h.service.GetAllByUserID(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -128,9 +143,11 @@ func (h *TaskHandler) ViewHTML(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		Tasks   []models.Task
 		Folders map[string][]models.Task
+		Role    string
 	}{
 		Tasks:   tasks,
 		Folders: folders,
+		Role:    userRole,
 	}
 	
 	tmpl := template.Must(template.New("development.html").Funcs(funcMap).ParseFiles("templates/development.html"))

@@ -50,3 +50,10 @@ func (r *UserMongoRepository) UpdateAvatar(id string, avatar string) error {
 	_, err := r.collection.UpdateOne(context.Background(), filter, update)
 	return err
 }
+
+func (r *UserMongoRepository) UpdateRole(id string, role string) error {
+	filter := bson.M{"_id": id}
+	update := bson.M{"$set": bson.M{"role": role}}
+	_, err := r.collection.UpdateOne(context.Background(), filter, update)
+	return err
+}

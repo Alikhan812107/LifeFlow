@@ -328,10 +328,17 @@
                     <label for="body">Description</label>
                     <textarea name="body" id="body" class="form-control" placeholder="Details..."></textarea>
                 </div>
+                {{if eq .Role "premium"}}
                 <div class="form-group">
                     <label for="folder">Folder</label>
                     <input type="text" name="folder" id="folder" class="form-control" placeholder="General" value="General">
                 </div>
+                {{else}}
+                <input type="hidden" name="folder" value="General">
+                <div style="background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; color: #856404;">
+                    ⭐ Upgrade to Premium to use folders
+                </div>
+                {{end}}
                 <button type="submit" class="btn-add">Add Task</button>
             </form>
         </div>

@@ -30,12 +30,10 @@ func main() {
 	taskCollection := client.Database("lifeflow").Collection("tasks")
 	taskRepo := repository.NewMongoTaskRepository(taskCollection)
 	taskService := service.NewTaskService(taskRepo)
-	taskHandler := handlers.NewTaskHandler(taskService)
 
 	noteCollection := client.Database("lifeflow").Collection("notes")
 	noteRepo := repository.NewMongoNoteRepository(noteCollection)
 	noteService := service.NewNoteService(noteRepo)
-	noteHandler := handlers.NewNoteHandler(noteService)
 
 	sleepCollection := client.Database("lifeflow").Collection("sleep")
 	sleepRepo := repository.NewMongoSleepRepository(sleepCollection)
@@ -49,11 +47,13 @@ func main() {
 	activityRepo := repository.NewMongoActivityRepository(activityCollection)
 	activityService := service.NewActivityService(activityRepo)
 
-	healthHandler := handlers.NewHealthHandler(sleepService, nutritionService, activityService)
-
 	db := client.Database("lifeflow")
 	userRepo := repository.NewUserMongoRepository(db)
 	userService := service.NewUserService(userRepo)
+
+	taskHandler := handlers.NewTaskHandler(taskService, userService)
+	noteHandler := handlers.NewNoteHandler(noteService, userService)
+	healthHandler := handlers.NewHealthHandler(sleepService, nutritionService, activityService, userService)
 	userHandler := handlers.NewUserHandler(taskService, noteService, userService)
 	authHandler := handlers.NewAuthHandler(userService)
 

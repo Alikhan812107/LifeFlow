@@ -245,6 +245,14 @@
     <div class="container">
         <div class="add-section">
             <h2>📝 Create New Note</h2>
+            {{if eq .Role "free"}}
+            <div style="background: #fff3cd; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <strong style="color: #856404;">Free Plan: {{.Count}}/10 notes used</strong>
+                {{if ge .Count 10}}
+                <p style="color: #856404; margin-top: 5px;">You've reached the limit. Upgrade to Premium for unlimited notes!</p>
+                {{end}}
+            </div>
+            {{end}}
             <form method="POST" action="/notes/html">
                 <div class="form-row">
                     <div class="form-group">
@@ -260,9 +268,9 @@
             </form>
         </div>
         
-        {{if .}}
+        {{if .Notes}}
             <div class="notes-section">
-                {{range .}}
+                {{range .Notes}}
                 <div class="note-item" id="note-{{.ID.Hex}}">
                     <div class="note-title">{{.Title}}</div>
                     {{if .Description}}

@@ -252,10 +252,17 @@
                 
                 <div class="data-card">
                     {{if .Sleeps}}
+                        {{if eq .Role "premium"}}
                         <div class="chart-container">
                             <h3>Sleep Duration (Hours)</h3>
                             <canvas id="sleepChart"></canvas>
                         </div>
+                        {{else}}
+                        <div style="background: #fff3cd; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
+                            <h3 style="color: #856404; margin-bottom: 10px;">⭐ Premium Feature</h3>
+                            <p style="color: #856404;">Upgrade to Premium to see sleep charts and analytics</p>
+                        </div>
+                        {{end}}
                         
                         <div class="records-list">
                             <h3>Recent Records</h3>
@@ -377,6 +384,7 @@
         }
         
         {{if .Sleeps}}
+        {{if eq .Role "premium"}}
         const sleepData = [
             {{range .Sleeps}}
             {
@@ -416,6 +424,7 @@
                 }
             }
         });
+        {{end}}
         {{end}}
         
         {{if .Nutritions}}

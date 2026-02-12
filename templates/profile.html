@@ -300,6 +300,36 @@
             
             <div class="info-section">
                 <div class="info-title">
+                    <span>⭐</span>
+                    Subscription
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Current Plan</span>
+                    <span class="info-value" style="text-transform: capitalize;">
+                        {{if eq .User.Role "premium"}}
+                            Premium ⭐
+                        {{else}}
+                            Free
+                        {{end}}
+                    </span>
+                </div>
+                {{if ne .User.Role "premium"}}
+                <div style="margin-top: 15px; padding: 15px; background: #fff3cd; border-radius: 10px;">
+                    <h4 style="color: #856404; margin-bottom: 10px;">Upgrade to Premium</h4>
+                    <ul style="color: #856404; margin-bottom: 15px; padding-left: 20px;">
+                        <li>Use folders in Development</li>
+                        <li>Create unlimited notes</li>
+                        <li>View health charts and analytics</li>
+                    </ul>
+                    <form method="POST" action="/profile/upgrade">
+                        <button type="submit" class="btn btn-primary">Upgrade Now</button>
+                    </form>
+                </div>
+                {{end}}
+            </div>
+            
+            <div class="info-section">
+                <div class="info-title">
                     <span>📊</span>
                     Account Statistics
                 </div>

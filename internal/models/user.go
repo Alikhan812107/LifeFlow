@@ -8,4 +8,5 @@ type User struct {
 	TasksNum int    `json:"tasks_num" bson:"tasks_num"`
 	NotesNum int    `json:"notes_num" bson:"notes_num"`
 	Avatar   string `json:"avatar" bson:"avatar"`
+	Role     string `json:"role" bson:"role"`
 }
