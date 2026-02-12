@@ -1,172 +1,462 @@
-# LifeFlow - Personal Productivity & Health Tracker
+# LifeFlow - Personal Life Management System
 
-Simple web app for managing tasks, notes, and health tracking built with Go and MongoDB.
+A comprehensive web application built with Go that helps you manage your daily life including tasks, notes, health tracking (sleep, nutrition, activities), and more. Perfect for students learning Go web development!
 
-## Features
+## 📋 Table of Contents
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Running the Application](#running-the-application)
+- [API Endpoints](#api-endpoints)
+- [Database Schema](#database-schema)
+- [Architecture](#architecture)
+- [Learning Resources](#learning-resources)
 
-- Create and organize tasks with folders
-- Mark tasks as complete/incomplete
-- Create simple notes (title + description)
-- Track sleep patterns (bedtime and wake time)
-- Track nutrition (calories, water intake, healthy eating)
-- Log daily activities
-- View user profile with statistics
-- Upload custom avatar image
-- Full CRUD operations for all entities
-- Interactive charts using Chart.js
+## ✨ Features
 
-## Quick Start
+### User Management
+- User registration and authentication
+- Session-based login system
+- User profiles with role-based access (Free/Premium)
+- Password hashing with bcrypt
 
-1. Start MongoDB
-2. Copy `.env.example` to `.env` and set your `MONGO_URI`
-3. Run: `go run cmd/server/main.go`
-4. Open: http://localhost:8080
+### Notes Management
+- Create, read, update, and delete notes
+- Free users: Limited to 10 notes
+- Premium users: Unlimited notes
+- Each note has a title and description
 
-## Pages
+### Task Management
+- Create and manage tasks
+- Track task completion status
+- Organize your to-do list
 
-- **Development** (`/`) - Task management with folders and inline editing
-- **Notes** (`/notes`) - Simple note-taking without status tracking
-- **Health** (`/health`) - Track sleep, nutrition, and activities with charts
-- **Profile** (`/profile`) - User info, statistics, and avatar upload
+### Health Tracking
+- **Sleep Tracking**: Monitor your sleep patterns
+- **Nutrition Tracking**: Log your meals and dietary information
+- **Activity Tracking**: Record physical activities and exercises
 
-## Architecture
+### Subscription System
+- Free tier with limited features
+- Premium tier with unlimited access
+- Middleware-based subscription enforcement
 
-3-layer architecture pattern:
+## 🛠 Tech Stack
 
-```
-Handler -> Service -> Repository -> MongoDB
-```
+- **Language**: Go 1.25
+- **Database**: MongoDB (Cloud - MongoDB Atlas)
+- **Web Framework**: Native Go `net/http`
+- **Template Engine**: Go `html/template`
+- **Authentication**: Session-based with bcrypt password hashing
+- **Environment Management**: godotenv
 
-- **Handler**: HTTP request handling, form parsing, template rendering
-- **Service**: Business logic layer (currently thin, delegates to repository)
-- **Repository**: Database operations using MongoDB driver
-- **Models**: Data structures with JSON and BSON tags
-
-## API Endpoints
-
-### Tasks
-- `GET /` - Main page with tasks
-- `POST /development/html` - Create task
-- `POST /development/update` - Update task
-- `GET /development/toggle?id=<id>` - Toggle task status
-- `GET /development/delete?id=<id>` - Delete task
-
-### Notes
-- `GET /notes` - Notes page
-- `POST /notes/html` - Create note
-- `POST /notes/update` - Update note
-- `GET /notes/delete?id=<id>` - Delete note
-
-### Health
-- `GET /health` - Health tracking page
-- `POST /health/sleep` - Add sleep record
-- `POST /health/nutrition` - Add nutrition record
-- `POST /health/activity` - Add activity record
-
-### Profile
-- `GET /profile` - User profile page
-- `POST /profile/avatar` - Upload avatar image (max 10MB)
-
-## Data Models
-
+### Key Dependencies
 ```go
-type Task struct {
-    ID     primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-    Title  string             `json:"title" bson:"title"`
-    Body   string             `json:"body" bson:"body"`
-    Done   bool               `json:"done" bson:"done"`
-    Folder string             `json:"folder" bson:"folder"`
-    UserID string             `json:"user_id" bson:"user_id"`
-}
-
-type Note struct {
-    ID          primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-    Title       string             `json:"title" bson:"title"`
-    Description string             `json:"description" bson:"description"`
-    UserID      string             `json:"user_id" bson:"user_id"`
-}
-
-type Sleep struct {
-    ID        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-    WokeUp    time.Time          `json:"woke_up" bson:"woke_up"`
-    Slept     time.Time          `json:"slept" bson:"slept"`
-    UserID    string             `json:"user_id" bson:"user_id"`
-    Timestamp time.Time          `json:"timestamp" bson:"timestamp"`
-}
-
-type Nutrition struct {
-    ID        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-    Calories  int                `json:"calories" bson:"calories"`
-    Water     float64            `json:"water" bson:"water"`
-    Healthy   bool               `json:"healthy" bson:"healthy"`
-    UserID    string             `json:"user_id" bson:"user_id"`
-    Timestamp time.Time          `json:"timestamp" bson:"timestamp"`
-}
-
-type Activity struct {
-    ID          primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-    Description string             `json:"description" bson:"description"`
-    UserID      string             `json:"user_id" bson:"user_id"`
-    Timestamp   time.Time          `json:"timestamp" bson:"timestamp"`
-}
-
-type User struct {
-    ID       string `json:"id" bson:"_id,omitempty"`
-    Name     string `json:"name" bson:"name"`
-    Email    string `json:"email" bson:"email"`
-    TasksNum int    `json:"tasks_num" bson:"tasks_num"`
-    NotesNum int    `json:"notes_num" bson:"notes_num"`
-    Avatar   string `json:"avatar" bson:"avatar"`
-}
+github.com/joho/godotenv v1.5.1          // Environment variable management
+go.mongodb.org/mongo-driver v1.17.7      // MongoDB driver
+golang.org/x/crypto v0.48.0              // Password hashing
 ```
 
-## MongoDB Collections
-
-- `tasks` - User tasks with folder organization
-- `notes` - Simple notes
-- `sleep` - Sleep tracking records
-- `nutrition` - Nutrition tracking records
-- `activity` - Activity logs
-- `users` - User profiles with avatar (stored as base64)
-
-## Tech Stack
-
-- Go 1.x
-- MongoDB (with official Go driver)
-- HTML templates
-- Chart.js for data visualization
-- Pure CSS (no frameworks)
-
-## Project Structure
+## 📁 Project Structure
 
 ```
-.
+Assignment3/
 ├── cmd/
 │   └── server/
-│       └── main.go              # Entry point
+│       └── main.go                 # Application entry point
 ├── internal/
 │   ├── app/
-│   │   ├── router.go            # Route registration
-│   │   └── server.go            # HTTP server
-│   ├── handlers/                # HTTP handlers
-│   ├── service/                 # Business logic
-│   ├── repository/              # Database operations
-│   └── models/                  # Data structures
-└── templates/                   # HTML templates
+│   │   ├── router.go              # Route definitions
+│   │   └── server.go              # HTTP server setup
+│   ├── config/
+│   │   └── config.go              # Configuration management
+│   ├── handlers/                  # HTTP request handlers
+│   │   ├── auth_handler.go        # Login/Register handlers
+│   │   ├── note_handler.go        # Note CRUD handlers
+│   │   ├── user_handler.go        # User profile handlers
+│   │   ├── health_handler.go      # Health tracking handlers
+│   │   └── development_handler.go # Development utilities
+│   ├── middleware/                # HTTP middleware
+│   │   ├── auth_middleware.go     # Authentication checks
+│   │   ├── session_middleware.go  # Session management
+│   │   ├── subscription_middleware.go # Subscription checks
+│   │   └── logging_middleware.go  # Request logging
+│   ├── models/                    # Data models
+│   │   ├── user.go
+│   │   ├── note.go
+│   │   ├── task.go
+│   │   ├── sleep.go
+│   │   ├── nutrition.go
+│   │   └── activity.go
+│   ├── repository/                # Database layer
+│   │   ├── mongo_client.go        # MongoDB connection
+│   │   └── *_repository.go        # Repository implementations
+│   └── service/                   # Business logic layer
+│       └── *_service.go           # Service implementations
+├── templates/                     # HTML templates
+│   ├── login.html
+│   ├── register.html
+│   ├── notes.html
+│   ├── profile.html
+│   ├── health.html
+│   └── style.css
+├── .env                          # Environment variables (not in git)
+├── .gitignore
+├── go.mod                        # Go module definition
+└── README.md
 ```
 
-## How Avatar Upload Works
+## 📚 Architecture
 
-1. User selects image file on profile page
-2. Form submits to `/profile/avatar` with multipart/form-data
-3. Handler reads file bytes (max 10MB)
-4. Converts image to base64 string
-5. Saves to MongoDB users collection
-6. On profile load, retrieves base64 string
-7. Displays as `<img src="data:image/jpeg;base64,...">`
+This project follows a **clean architecture** pattern with clear separation of concerns:
 
-## Environment Variables
+1. **Handlers Layer** (`internal/handlers/`)
+   - Handles HTTP requests and responses
+   - Validates input data
+   - Calls service layer for business logic
 
+2. **Service Layer** (`internal/service/`)
+   - Contains business logic
+   - Orchestrates data flow between handlers and repositories
+   - Enforces business rules
+
+3. **Repository Layer** (`internal/repository/`)
+   - Handles database operations
+   - Abstracts database implementation details
+   - Uses interfaces for flexibility
+
+4. **Models Layer** (`internal/models/`)
+   - Defines data structures
+   - Represents database entities
+
+5. **Middleware Layer** (`internal/middleware/`)
+   - Authentication checks
+   - Session management
+   - Logging and monitoring
+
+## 🔧 Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Go**: Version 1.25 or higher
+  - Download from [golang.org](https://golang.org/dl/)
+  - Verify installation: `go version`
+
+- **MongoDB Atlas Account** (Free tier works!)
+  - Sign up at [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
+  - Create a cluster and get your connection string
+
+- **Git**: For version control
+  - Download from [git-scm.com](https://git-scm.com/)
+
+## 🚀 Installation
+
+### Step 1: Clone the Repository
+```bash
+git clone <your-repository-url>
+cd Assignment3
 ```
-MONGO_URI=mongodb://localhost:27017
+
+### Step 2: Install Dependencies
+```bash
+go mod download
 ```
+
+This will download all required packages listed in `go.mod`.
+
+### Step 3: Verify Installation
+```bash
+go mod verify
+```
+
+## ⚙️ Configuration
+
+### Step 1: Create Environment File
+Create a `.env` file in the project root:
+
+```bash
+# On Windows (CMD)
+type nul > .env
+
+# On Windows (PowerShell)
+New-Item .env -ItemType File
+```
+
+### Step 2: Add Environment Variables
+Open `.env` and add the following:
+
+```env
+MONGO_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/?appName=<AppName>
+PORT=8080
+```
+
+**Important**: Replace the placeholders:
+- `<username>`: Your MongoDB username
+- `<password>`: Your MongoDB password
+- `<cluster>`: Your cluster address
+- `<AppName>`: Your application name
+
+### Step 3: MongoDB Setup
+1. Log in to [MongoDB Atlas](https://cloud.mongodb.com/)
+2. Create a new cluster (free tier is fine)
+3. Create a database user with read/write permissions
+4. Whitelist your IP address (or use `0.0.0.0/0` for development)
+5. Get your connection string from "Connect" → "Connect your application"
+6. The database `lifeflow` and collections will be created automatically
+
+## 🏃 Running the Application
+
+### Development Mode
+
+#### Option 1: Using go run
+```bash
+go run cmd/server/main.go
+```
+
+#### Option 2: Build and Run
+```bash
+# Build the executable
+go build -o lifeflow.exe cmd/server/main.go
+
+# Run the executable
+.\lifeflow.exe
+```
+
+### Expected Output
+```
+server starting on :8080
+```
+
+### Access the Application
+Open your browser and navigate to:
+```
+http://localhost:8080
+```
+
+## 🌐 API Endpoints
+
+### Authentication
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/login` | Login page | No |
+| POST | `/login` | Login user | No |
+| GET | `/register` | Registration page | No |
+| POST | `/register` | Register new user | No |
+| GET | `/logout` | Logout user | Yes |
+
+### Notes
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/notes` | View all notes (HTML) | Yes |
+| POST | `/notes/create` | Create new note | Yes |
+| POST | `/notes/update` | Update existing note | Yes |
+| GET | `/notes/delete` | Delete note | Yes |
+
+### User Profile
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/profile` | View user profile | Yes |
+| POST | `/profile/update` | Update profile | Yes |
+
+### Health Tracking
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/health` | Health dashboard | Yes |
+| POST | `/health/sleep` | Log sleep data | Yes |
+| POST | `/health/nutrition` | Log nutrition data | Yes |
+| POST | `/health/activity` | Log activity data | Yes |
+
+### Development (Debug endpoints)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/dev` | Development dashboard | No |
+| GET | `/dev/users` | List all users | No |
+| POST | `/dev/clear-sessions` | Clear all sessions | No |
+
+## 🗄️ Database Schema
+
+### Database Name: `lifeflow`
+
+### Collections:
+
+#### users
+```json
+{
+  "_id": "ObjectId",
+  "username": "string",
+  "email": "string",
+  "password": "string (hashed)",
+  "role": "string (free/premium)",
+  "createdAt": "timestamp"
+}
+```
+
+#### notes
+```json
+{
+  "_id": "ObjectId",
+  "title": "string",
+  "description": "string",
+  "userId": "ObjectId",
+  "createdAt": "timestamp"
+}
+```
+
+#### tasks
+```json
+{
+  "_id": "ObjectId",
+  "title": "string",
+  "description": "string",
+  "completed": "boolean",
+  "userId": "ObjectId",
+  "createdAt": "timestamp"
+}
+```
+
+#### sleep
+```json
+{
+  "_id": "ObjectId",
+  "userId": "ObjectId",
+  "date": "timestamp",
+  "hours": "number",
+  "quality": "string"
+}
+```
+
+#### nutrition
+```json
+{
+  "_id": "ObjectId",
+  "userId": "ObjectId",
+  "date": "timestamp",
+  "meal": "string",
+  "calories": "number"
+}
+```
+
+#### activity
+```json
+{
+  "_id": "ObjectId",
+  "userId": "ObjectId",
+  "date": "timestamp",
+  "type": "string",
+  "duration": "number"
+}
+```
+
+## 🎓 Learning Resources
+
+### Understanding the Code
+
+#### 1. Entry Point (`cmd/server/main.go`)
+This is where the application starts. It:
+- Loads environment variables
+- Connects to MongoDB
+- Initializes repositories, services, and handlers
+- Registers routes
+- Starts the HTTP server
+
+#### 2. Handlers
+Handlers receive HTTP requests and return responses. Example:
+```go
+func (h *NoteHandler) Create(w http.ResponseWriter, r *http.Request) {
+    // 1. Parse request body
+    // 2. Call service layer
+    // 3. Return response
+}
+```
+
+#### 3. Services
+Services contain business logic. They:
+- Validate data
+- Enforce business rules (e.g., free users can only have 10 notes)
+- Call repositories for data operations
+
+#### 4. Repositories
+Repositories handle database operations:
+- CRUD operations (Create, Read, Update, Delete)
+- Query building
+- Data mapping
+
+#### 5. Middleware
+Middleware functions run before handlers:
+- Authentication: Check if user is logged in
+- Logging: Log request details
+- Subscription: Check user's subscription level
+
+### Key Go Concepts Used
+
+1. **Interfaces**: Used for repository abstraction
+2. **Structs**: Define data models and handlers
+3. **Pointers**: Pass references to avoid copying large data
+4. **Error Handling**: Explicit error checking with `if err != nil`
+5. **Goroutines**: (Can be added for concurrent operations)
+6. **HTTP Handlers**: `http.HandlerFunc` pattern
+
+### Common Tasks
+
+#### Adding a New Feature
+1. Create model in `internal/models/`
+2. Create repository interface and implementation
+3. Create service with business logic
+4. Create handler for HTTP endpoints
+5. Register routes in `internal/app/router.go`
+6. Create HTML template if needed
+
+#### Debugging Tips
+- Check server logs in the terminal
+- Use the `/dev` endpoints to inspect data
+- Add `log.Println()` statements for debugging
+- Check MongoDB Atlas for database issues
+
+## 🔒 Security Notes
+
+- Passwords are hashed using bcrypt
+- Sessions are stored server-side
+- Never commit `.env` file to version control
+- Always validate user input
+- Use HTTPS in production
+
+## 🐛 Troubleshooting
+
+### "need MONGO_URI" error
+- Ensure `.env` file exists in project root
+- Check that `MONGO_URI` is set correctly
+- Verify no extra spaces in `.env` file
+
+### "cant connect to mongo" error
+- Check your internet connection
+- Verify MongoDB Atlas cluster is running
+- Ensure IP address is whitelisted in MongoDB Atlas
+- Check username and password in connection string
+
+### Port already in use
+- Change `PORT` in `.env` file
+- Or kill the process using port 8080:
+  ```bash
+  # Windows
+  netstat -ano | findstr :8080
+  taskkill /PID <PID> /F
+  ```
+
+## 📝 License
+
+This is a student project for educational purposes.
+
+## 🤝 Contributing
+
+This is an assignment project, but feel free to fork and experiment!
+
+## 📧 Contact
+
+For questions or issues, please contact the project maintainer.
+
+---
+
+**Happy Coding! 🚀**
