@@ -20,3 +20,7 @@ func (s *ActivityService) Create(activity models.Activity) (models.Activity, err
 func (s *ActivityService) GetAll() ([]models.Activity, error) {
 	return s.repo.GetAll()
 }
+
+func (s *ActivityService) GetAllByUserID(userID string) ([]models.Activity, error) {
+	return s.repo.GetAllByUserID(userID)
+}

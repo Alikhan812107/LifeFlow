@@ -34,6 +34,16 @@ func (r *MongoNoteRepository) GetAll() ([]models.Note, error) {
 	return notes, err
 }
 
+func (r *MongoNoteRepository) GetAllByUserID(userID string) ([]models.Note, error) {
+	var notes []models.Note
+	cursor, err := r.collection.Find(context.Background(), bson.M{"user_id": userID})
+	if err != nil {
+		return nil, err
+	}
+	err = cursor.All(context.Background(), &notes)
+	return notes, err
+}
+
 func (r *MongoNoteRepository) GetByID(id primitive.ObjectID) (models.Note, error) {
 	var note models.Note
 	err := r.collection.FindOne(context.Background(), bson.M{"_id": id}).Decode(&note)

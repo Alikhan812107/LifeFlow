@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"Assignment3/internal/middleware"
 	"Assignment3/internal/models"
 	"Assignment3/internal/service"
 	"html/template"
@@ -24,9 +25,15 @@ func NewHealthHandler(sleepService *service.SleepService, nutritionService *serv
 }
 
 func (h *HealthHandler) ViewHTML(w http.ResponseWriter, r *http.Request) {
-	sleeps, _ := h.sleepService.GetAll()
-	nutritions, _ := h.nutritionService.GetAll()
-	activities, _ := h.activityService.GetAll()
+	userID, ok := middleware.GetUserID(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	
+	sleeps, _ := h.sleepService.GetAllByUserID(userID)
+	nutritions, _ := h.nutritionService.GetAllByUserID(userID)
+	activities, _ := h.activityService.GetAllByUserID(userID)
 	
 	data := struct {
 		Sleeps     []models.Sleep
@@ -48,6 +55,12 @@ func (h *HealthHandler) CreateSleep(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
+	userID, ok := middleware.GetUserID(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	
 	wokeUpStr := r.FormValue("woke_up")
 	sleptStr := r.FormValue("slept")
 	
@@ -66,7 +79,7 @@ func (h *HealthHandler) CreateSleep(w http.ResponseWriter, r *http.Request) {
 	sleep := models.Sleep{
 		WokeUp:    wokeUp,
 		Slept:     slept,
-		UserID:    "user1",
+		UserID:    userID,
 		Timestamp: time.Now(),
 	}
 	
@@ -82,6 +95,12 @@ func (h *HealthHandler) CreateSleep(w http.ResponseWriter, r *http.Request) {
 func (h *HealthHandler) CreateNutrition(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "wrong method", http.StatusMethodNotAllowed)
+		return
+	}
+	
+	userID, ok := middleware.GetUserID(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 	
@@ -107,7 +126,7 @@ func (h *HealthHandler) CreateNutrition(w http.ResponseWriter, r *http.Request) 
 		Calories:  calories,
 		Water:     water,
 		Healthy:   healthy,
-		UserID:    "user1",
+		UserID:    userID,
 		Timestamp: time.Now(),
 	}
 	
@@ -126,6 +145,12 @@ func (h *HealthHandler) CreateActivity(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
+	userID, ok := middleware.GetUserID(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	
 	description := r.FormValue("description")
 	if description == "" {
 		http.Error(w, "need description", http.StatusBadRequest)
@@ -134,7 +159,7 @@ func (h *HealthHandler) CreateActivity(w http.ResponseWriter, r *http.Request) {
 	
 	activity := models.Activity{
 		Description: description,
-		UserID:      "user1",
+		UserID:      userID,
 		Timestamp:   time.Now(),
 	}
 	

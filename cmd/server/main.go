@@ -55,8 +55,9 @@ func main() {
 	userRepo := repository.NewUserMongoRepository(db)
 	userService := service.NewUserService(userRepo)
 	userHandler := handlers.NewUserHandler(taskService, noteService, userService)
+	authHandler := handlers.NewAuthHandler(userService)
 
-	app.RegisterRoutes(taskHandler, noteHandler, userHandler, healthHandler)
+	app.RegisterRoutes(taskHandler, noteHandler, userHandler, healthHandler, authHandler)
 	log.Println("server starting on :8080")
 	app.Start()
 }

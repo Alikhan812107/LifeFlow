@@ -20,32 +20,33 @@ func NewUserMongoRepository(db *mongo.Database) *UserMongoRepository {
 
 func (r *UserMongoRepository) GetByID(id string) (*models.User, error) {
 	var user models.User
-
 	err := r.collection.FindOne(context.Background(), bson.M{"_id": id}).Decode(&user)
 	if err != nil {
 		return nil, err
 	}
+	return &user, nil
+}
 
+func (r *UserMongoRepository) GetByEmail(email string) (*models.User, error) {
+	var user models.User
+	err := r.collection.FindOne(context.Background(), bson.M{"email": email}).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *UserMongoRepository) Create(user models.User) (*models.User, error) {
+	_, err := r.collection.InsertOne(context.Background(), user)
+	if err != nil {
+		return nil, err
+	}
 	return &user, nil
 }
 
 func (r *UserMongoRepository) UpdateAvatar(id string, avatar string) error {
 	filter := bson.M{"_id": id}
 	update := bson.M{"$set": bson.M{"avatar": avatar}}
-
-	res, err := r.collection.UpdateOne(context.Background(), filter, update)
-	if err != nil {
-		return err
-	}
-
-	if res.MatchedCount == 0 {
-		_, err = r.collection.InsertOne(context.Background(), bson.M{
-			"_id":    id,
-			"name":   "John Student",
-			"email":  "john@student.com",
-			"avatar": avatar,
-		})
-	}
-
+	_, err := r.collection.UpdateOne(context.Background(), filter, update)
 	return err
 }

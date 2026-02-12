@@ -33,3 +33,14 @@ func (r *MongoNutritionRepository) GetAll() ([]models.Nutrition, error) {
 	err = cursor.All(context.Background(), &nutritions)
 	return nutritions, err
 }
+
+func (r *MongoNutritionRepository) GetAllByUserID(userID string) ([]models.Nutrition, error) {
+	var nutritions []models.Nutrition
+	opts := options.Find().SetSort(bson.D{{Key: "timestamp", Value: -1}})
+	cursor, err := r.collection.Find(context.Background(), bson.M{"user_id": userID}, opts)
+	if err != nil {
+		return nil, err
+	}
+	err = cursor.All(context.Background(), &nutritions)
+	return nutritions, err
+}

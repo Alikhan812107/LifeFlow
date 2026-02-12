@@ -34,6 +34,16 @@ func (r *MongoTaskRepository) GetAll() ([]models.Task, error) {
 	return tasks, err
 }
 
+func (r *MongoTaskRepository) GetAllByUserID(userID string) ([]models.Task, error) {
+	var tasks []models.Task
+	cursor, err := r.collection.Find(context.Background(), bson.M{"user_id": userID})
+	if err != nil {
+		return nil, err
+	}
+	err = cursor.All(context.Background(), &tasks)
+	return tasks, err
+}
+
 func (r *MongoTaskRepository) GetByID(id primitive.ObjectID) (models.Task, error) {
 	var task models.Task
 	err := r.collection.FindOne(context.Background(), bson.M{"_id": id}).Decode(&task)

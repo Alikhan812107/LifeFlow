@@ -22,6 +22,10 @@ func (s *NoteService) GetAll() ([]models.Note, error) {
 	return s.repo.GetAll()
 }
 
+func (s *NoteService) GetAllByUserID(userID string) ([]models.Note, error) {
+	return s.repo.GetAllByUserID(userID)
+}
+
 func (s *NoteService) GetByID(id primitive.ObjectID) (models.Note, error) {
 	return s.repo.GetByID(id)
 }

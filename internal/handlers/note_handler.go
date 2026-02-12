@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"Assignment3/internal/middleware"
 	"Assignment3/internal/models"
 	"Assignment3/internal/service"
 	"encoding/json"
@@ -45,7 +46,13 @@ func (h *NoteHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *NoteHandler) ViewHTML(w http.ResponseWriter, r *http.Request) {
-	notes, err := h.service.GetAll()
+	userID, ok := middleware.GetUserID(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	
+	notes, err := h.service.GetAllByUserID(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -59,6 +66,13 @@ func (h *NoteHandler) CreateFromHTML(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "wrong method", http.StatusMethodNotAllowed)
 		return
 	}
+	
+	userID, ok := middleware.GetUserID(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	
 	title := r.FormValue("title")
 	description := r.FormValue("description")
 	if title == "" {
@@ -68,7 +82,7 @@ func (h *NoteHandler) CreateFromHTML(w http.ResponseWriter, r *http.Request) {
 	note := models.Note{
 		Title:       title,
 		Description: description,
-		UserID:      "user1",
+		UserID:      userID,
 	}
 	_, err := h.service.Create(note)
 	if err != nil {
@@ -83,6 +97,13 @@ func (h *NoteHandler) UpdateFromHTML(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "wrong method", http.StatusMethodNotAllowed)
 		return
 	}
+	
+	userID, ok := middleware.GetUserID(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	
 	idStr := r.FormValue("id")
 	id, err := primitive.ObjectIDFromHex(idStr)
 	if err != nil {
@@ -100,7 +121,7 @@ func (h *NoteHandler) UpdateFromHTML(w http.ResponseWriter, r *http.Request) {
 	note := models.Note{
 		Title:       title,
 		Description: description,
-		UserID:      "user1",
+		UserID:      userID,
 	}
 	
 	_, err = h.service.Update(id, note)

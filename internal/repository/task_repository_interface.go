@@ -8,6 +8,7 @@ import (
 type TaskRepository interface {
 	Create(task models.Task) (models.Task, error)
 	GetAll() ([]models.Task, error)
+	GetAllByUserID(userID string) ([]models.Task, error)
 	GetByID(id primitive.ObjectID) (models.Task, error)
 	Update(id primitive.ObjectID, task models.Task) (models.Task, error)
 	Delete(id primitive.ObjectID) error

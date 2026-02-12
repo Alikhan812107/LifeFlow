@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"Assignment3/internal/middleware"
 	"Assignment3/internal/models"
 	"Assignment3/internal/service"
 	"encoding/json"
@@ -98,7 +99,13 @@ func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) ViewHTML(w http.ResponseWriter, r *http.Request) {
-	tasks, err := h.service.GetAll()
+	userID, ok := middleware.GetUserID(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	
+	tasks, err := h.service.GetAllByUserID(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -135,6 +142,13 @@ func (h *TaskHandler) CreateFromHTML(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "wrong method", http.StatusMethodNotAllowed)
 		return
 	}
+	
+	userID, ok := middleware.GetUserID(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	
 	title := r.FormValue("title")
 	body := r.FormValue("body")
 	folder := r.FormValue("folder")
@@ -150,7 +164,7 @@ func (h *TaskHandler) CreateFromHTML(w http.ResponseWriter, r *http.Request) {
 		Body:   body,
 		Folder: folder,
 		Done:   false,
-		UserID: "user1",
+		UserID: userID,
 	}
 	_, err := h.service.Create(task)
 	if err != nil {
@@ -165,6 +179,13 @@ func (h *TaskHandler) UpdateFromHTML(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "wrong method", http.StatusMethodNotAllowed)
 		return
 	}
+	
+	userID, ok := middleware.GetUserID(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	
 	idStr := r.FormValue("id")
 	id, err := primitive.ObjectIDFromHex(idStr)
 	if err != nil {
@@ -189,7 +210,7 @@ func (h *TaskHandler) UpdateFromHTML(w http.ResponseWriter, r *http.Request) {
 		Body:   body,
 		Folder: folder,
 		Done:   done,
-		UserID: "user1",
+		UserID: userID,
 	}
 	
 	_, err = h.service.Update(id, task)

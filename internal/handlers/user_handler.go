@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"Assignment3/internal/middleware"
 	"Assignment3/internal/models"
 	"Assignment3/internal/service"
 	"encoding/base64"
@@ -24,13 +25,19 @@ func NewUserHandler(taskService *service.TaskService, noteService *service.NoteS
 }
 
 func (h *UserHandler) ViewProfile(w http.ResponseWriter, r *http.Request) {
-	tasks, err := h.taskService.GetAll()
+	userID, ok := middleware.GetUserID(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	
+	tasks, err := h.taskService.GetAllByUserID(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	notes, err := h.noteService.GetAll()
+	notes, err := h.noteService.GetAllByUserID(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -43,7 +50,7 @@ func (h *UserHandler) ViewProfile(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	user, err := h.userService.GetByID("user1")
+	user, err := h.userService.GetByID(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -82,6 +89,12 @@ func (h *UserHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+	
+	userID, ok := middleware.GetUserID(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
 
 	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
@@ -104,7 +117,7 @@ func (h *UserHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 
 	base64Image := base64.StdEncoding.EncodeToString(bytes)
 
-	err = h.userService.UpdateAvatar("user1", base64Image)
+	err = h.userService.UpdateAvatar(userID, base64Image)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

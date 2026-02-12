@@ -33,3 +33,14 @@ func (r *MongoSleepRepository) GetAll() ([]models.Sleep, error) {
 	err = cursor.All(context.Background(), &sleeps)
 	return sleeps, err
 }
+
+func (r *MongoSleepRepository) GetAllByUserID(userID string) ([]models.Sleep, error) {
+	var sleeps []models.Sleep
+	opts := options.Find().SetSort(bson.D{{Key: "timestamp", Value: -1}})
+	cursor, err := r.collection.Find(context.Background(), bson.M{"user_id": userID}, opts)
+	if err != nil {
+		return nil, err
+	}
+	err = cursor.All(context.Background(), &sleeps)
+	return sleeps, err
+}

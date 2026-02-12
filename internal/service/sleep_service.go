@@ -20,3 +20,7 @@ func (s *SleepService) Create(sleep models.Sleep) (models.Sleep, error) {
 func (s *SleepService) GetAll() ([]models.Sleep, error) {
 	return s.repo.GetAll()
 }
+
+func (s *SleepService) GetAllByUserID(userID string) ([]models.Sleep, error) {
+	return s.repo.GetAllByUserID(userID)
+}

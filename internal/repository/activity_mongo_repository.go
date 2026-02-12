@@ -33,3 +33,14 @@ func (r *MongoActivityRepository) GetAll() ([]models.Activity, error) {
 	err = cursor.All(context.Background(), &activities)
 	return activities, err
 }
+
+func (r *MongoActivityRepository) GetAllByUserID(userID string) ([]models.Activity, error) {
+	var activities []models.Activity
+	opts := options.Find().SetSort(bson.D{{Key: "timestamp", Value: -1}})
+	cursor, err := r.collection.Find(context.Background(), bson.M{"user_id": userID}, opts)
+	if err != nil {
+		return nil, err
+	}
+	err = cursor.All(context.Background(), &activities)
+	return activities, err
+}

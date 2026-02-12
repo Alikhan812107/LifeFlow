@@ -22,6 +22,10 @@ func (s *TaskService) GetAll() ([]models.Task, error) {
 	return s.repo.GetAll()
 }
 
+func (s *TaskService) GetAllByUserID(userID string) ([]models.Task, error) {
+	return s.repo.GetAllByUserID(userID)
+}
+
 func (s *TaskService) GetByID(id primitive.ObjectID) (models.Task, error) {
 	return s.repo.GetByID(id)
 }
